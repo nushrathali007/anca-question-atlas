@@ -1,0 +1,1 @@
+When adding questions to bank.json, assign each record one target from the existing question target folders, based on the decision or interpretation tested. Store relevant clinical tags as a string array in tags. Keep the guideline or trial name in source. Preserve existing IDs, original question text, and the 212-entry baseline.
