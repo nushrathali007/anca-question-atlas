@@ -2672,4 +2672,430 @@ footer {
   }
 }
 
+/* ==========================================================================
+   Tutor Mode Locking, Timed Mode Neutral Selection & End-of-Block Review
+   ========================================================================== */
+.quizChoices button[data-selected="true"] {
+  background: #edf5ff;
+  border-color: #2e7cf6;
+  color: #123c7b;
+}
+
+.quizChoices button[data-selected="true"] strong {
+  color: #2e7cf6;
+}
+
+.quizChoices button[data-locked="true"],
+.quizChoices button:disabled {
+  cursor: default;
+}
+
+.quizChoices button[data-locked="true"]:not([data-result]):hover,
+.quizChoices button:disabled:not([data-result]):hover {
+  border-color: #dce3dc;
+  background: #fbfcfb;
+}
+
+.examStepPill[data-status="answered"] {
+  border-color: #2e7cf6;
+  background: #edf5ff;
+  color: #164896;
+}
+
+.examStepPill[data-current="true"][data-status="answered"] {
+  border-color: var(--dark-cta);
+  background: var(--dark-cta);
+  color: #ffffff;
+}
+
+.blockModeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e6f7ef;
+  color: #0e6f40;
+}
+
+.blockModeBadge[data-mode="timed"] {
+  background: #edf5ff;
+  color: #164896;
+}
+
+.blockModeBadge[data-mode="review"] {
+  background: #f0ebff;
+  color: #5b32d6;
+}
+
+.examModeInlineNotice {
+  margin-top: 8px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  background: #f5f9f6;
+  border: 1px solid #d9e6dc;
+  color: #2f4337;
+}
+
+.examModeInlineNotice[data-mode="timed"] {
+  background: #f2f7ff;
+  border-color: #cde0fb;
+  color: #1b3f74;
+}
+
+.readerResultStatusBanner {
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  background: #e8f8ef;
+  border: 1px solid #b8e6cb;
+  color: #0e6f40;
+}
+
+.readerResultStatusBanner[data-status="incorrect"] {
+  background: var(--coral-soft);
+  border-color: #f4b7a7;
+  color: #892c27;
+}
+
+.readerResultStatusBanner[data-status="unanswered"] {
+  background: #fff8eb;
+  border-color: #f3d296;
+  color: #8e5606;
+}
+
+.blockReviewWorkspace {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.blockReviewSummaryCard {
+  background: #f9fbf9;
+  border: 1px solid #dce6dc;
+  border-radius: 18px;
+  padding: 18px 20px;
+}
+
+.blockReviewMetricsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.blockReviewMetricChip {
+  background: #ffffff;
+  border: 1px solid #dfe7df;
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.blockReviewMetricChip span {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.blockReviewMetricChip strong {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.blockReviewMetricChip[data-tone="score"] {
+  border-color: #b7e2c8;
+  background: #effaf3;
+}
+
+.blockReviewMetricChip[data-tone="score"] strong,
+.blockReviewMetricChip[data-tone="correct"] strong {
+  color: #0e6f40;
+}
+
+.blockReviewMetricChip[data-tone="incorrect"] strong {
+  color: #b93326;
+}
+
+.blockReviewMetricChip[data-tone="flagged"] strong {
+  color: #b46909;
+}
+
+.blockReviewControlsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.blockReviewFilterPills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.blockReviewFilterPills .secondaryPillBtn[aria-pressed="true"] {
+  background: var(--dark-cta);
+  border-color: var(--dark-cta);
+  color: #ffffff;
+}
+
+.blockReviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.blockReviewItemCard {
+  background: #ffffff;
+  border: 1.5px solid #dce5dc;
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 3px 12px rgba(18, 30, 22, 0.03);
+}
+
+.blockReviewItemCard[data-status="correct"] {
+  border-color: #9adab4;
+}
+
+.blockReviewItemCard[data-status="incorrect"] {
+  border-color: #f2b4a5;
+}
+
+.blockReviewItemCard[data-status="unanswered"] {
+  border-color: #efd196;
+}
+
+.blockReviewItemHeader {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #edf2ed;
+}
+
+.blockReviewItemStatusPill {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+  background: #e7f8ef;
+  color: #0e6f40;
+}
+
+.blockReviewItemStatusPill[data-status="incorrect"] {
+  background: var(--coral-soft);
+  color: #892c27;
+}
+
+.blockReviewItemStatusPill[data-status="unanswered"] {
+  background: #fff6e5;
+  color: #965606;
+}
+
+.blockReviewItemTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.38;
+}
+
+.blockReviewEmptyBox {
+  background: #fbfcfb;
+  border: 1px dashed #ccd8ce;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 720px) {
+  .blockReviewSummaryCard,
+  .blockReviewItemCard {
+    padding: 14px 12px;
+  }
+  .blockReviewControlsRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .blockReviewControlsRow .seg {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .blockReviewControlsRow .seg button {
+    white-space: normal;
+    text-align: center;
+    padding: 8px 10px;
+  }
+  .quizChoices button {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+}
+
+/* ==========================================================================
+   Focused Block Session — End Block Confirmation & Numerical Indicators
+   ========================================================================== */
+.blockProgressPillBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #2c3e33;
+  background: #f3f7f4;
+  border: 1px solid #d7e3da;
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.blockProgressPillBadge strong {
+  color: #0e6f40;
+  font-weight: 700;
+}
+
+.endBlockTriggerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #fff2ef;
+  color: #9e2a1b;
+  border: 1.5px solid #f0b6a6;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.endBlockTriggerBtn:hover {
+  background: #fde5df;
+  border-color: #df826b;
+}
+
+.endBlockConfirmBox {
+  background: #fffdf9;
+  border: 1.5px solid #f0c27b;
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(150, 86, 6, 0.08);
+}
+
+.endBlockConfirmTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.endBlockConfirmTitle {
+  margin: 0 0 4px;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #141816;
+}
+
+.endBlockConfirmText {
+  margin: 0;
+  font-size: 13.5px;
+  color: #4f5953;
+}
+
+.endBlockNumericStrip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.endBlockNumericItem {
+  background: #ffffff;
+  border: 1px solid #e1e8e1;
+  border-radius: 13px;
+  padding: 8px 14px;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.endBlockNumericItem span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.endBlockNumericItem strong {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.endBlockNumericItem[data-tone="completed"] {
+  border-color: #b7e2c8;
+  background: #f2fbf5;
+}
+
+.endBlockNumericItem[data-tone="completed"] strong {
+  color: #0e6f40;
+}
+
+.endBlockNumericItem[data-tone="left"] {
+  border-color: #f3d194;
+  background: #fff9ee;
+}
+
+.endBlockNumericItem[data-tone="left"] strong {
+  color: #b46909;
+}
+
+.endBlockConfirmActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1px solid #f0e4cd;
+}
+
+.endBlockExitBtn {
+  background: #ffffff;
+  color: #892c27;
+  border: 1px solid #eab5a8;
+  border-radius: 999px;
+  padding: 8px 15px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.endBlockExitBtn:hover {
+  background: #fff2ef;
+}
+
+
+
 

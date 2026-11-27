@@ -1,5 +1,5 @@
 export function questionFields(text:string){
- const marker=/^(?:([A-E])\. |PART B[^\n]*\n(?:Correct Answer:[ \t]*)?|PART C[^\n]*\n)/gim
+ const marker=/^(?:([A-E])\. |PART B[^\n]*\n(?:\s*Correct Answer:[ \t]*)?|PART C[^\n]*\n)/gim
  const matches=[...text.matchAll(marker)]
  const labels=['Question','Option A','Option B','Option C','Option D','Option E','Correct answer','Explanation']
  if(matches.length!==7 || matches.slice(0,5).map(m=>m[1]).join('')!=='ABCDE')return []
