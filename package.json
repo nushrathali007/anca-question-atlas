@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tailwindcss -i styles.css -o dist/app.css --minify && esbuild app.tsx --bundle --minify --outfile=dist/app.js"
+    "dev": "npm run build && node server.js",
+    "start": "node server.js",
+    "build": "tailwindcss -i styles.css -o dist/app.css --minify && esbuild app.tsx --bundle --minify --outfile=dist/app.js",
+    "lint": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
