@@ -3,7 +3,23 @@ import { createRoot } from 'react-dom/client'
 import { SearchToolbar } from './SearchToolbar'
 import { questionFields, migrateAnswerOrder } from './fields'
 import { seed, sources, topics } from './seed'
-import { PixelKidneyMascot, PixelFiltrateDrop, PixelBiopsySlide } from './PixelNephrologySprites'
+import {
+  PixelKidneyMascot,
+  PixelFiltrateDrop,
+  PixelBiopsySlide,
+  PixelGlomerulus,
+  PixelANCA_Y_Antibody,
+  PixelMicroscope,
+  PixelKidneyPair,
+} from './PixelNephrologySprites'
+import {
+  StatsBand,
+  WaffleUnitChart,
+  VasculitisDomainRadar,
+  CommandMenuModal,
+  MasteryAtlasDrawer,
+  computeSixAxisVasculitisMetrics,
+} from './Atlas21stComponents'
 
 type Q = typeof seed[number] & {
   disease?: string
@@ -351,7 +367,7 @@ function SubjectWisePerformanceRadar({
       <div className="cardHeaderRow" style={{ marginBottom: 14 }}>
         <div>
           <h2 className="cardTitle">Subject-wise Performance · Weak vs. Strong Sub-Topic Radar</h2>
-          <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#5a625d' }}>
+          <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
             Correctness rates (%) across each sub-topic. Red vertices highlight weak areas (&lt;60% accuracy); emerald vertices indicate strong mastery (&ge;80%).
           </p>
         </div>
@@ -453,7 +469,7 @@ function SubjectWisePerformanceRadar({
                     dominantBaseline="middle"
                     fontSize="10.5"
                     fontWeight={isHovered ? '700' : '600'}
-                    fill={isHovered ? '#0e6f40' : isWeak ? '#b43e18' : '#2a332e'}
+                    fill={isHovered ? 'var(--emerald)' : isWeak ? 'var(--coral)' : 'var(--text-primary)'}
                     style={{ cursor: 'pointer' }}
                     onMouseEnter={() => setHoveredIdx(idx)}
                     onMouseLeave={() => setHoveredIdx(null)}
@@ -507,9 +523,9 @@ function SubjectWisePerformanceRadar({
               width: '100%',
               marginTop: 8,
               paddingTop: 8,
-              borderTop: '1px solid #e6ece8',
+              borderTop: '1px solid var(--border-inner)',
               fontSize: 12,
-              color: '#5a625d',
+              color: 'var(--text-secondary)',
               flexWrap: 'wrap',
               gap: 10,
             }}
@@ -546,7 +562,7 @@ function SubjectWisePerformanceRadar({
               marginBottom: 10,
               fontSize: 12.5,
               fontWeight: 600,
-              color: '#5a625d',
+              color: 'var(--text-secondary)',
             }}
           >
             <span>SUB-TOPIC (WEAKEST TO STRONGEST)</span>
@@ -575,21 +591,21 @@ function SubjectWisePerformanceRadar({
                   >
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontWeight: 600, fontSize: 13.5, color: '#141816' }}>{m.name}</span>
+                        <span style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--text-primary)' }}>{m.name}</span>
                         <span
                           style={{
                             fontSize: 10.5,
                             fontWeight: 700,
                             padding: '1px 7px',
                             borderRadius: 999,
-                            background: m.accuracy >= 80 ? '#e6f7ef' : m.accuracy >= 60 ? '#fef6e6' : '#fdece6',
-                            color: m.accuracy >= 80 ? '#0e6f40' : m.accuracy >= 60 ? '#965606' : '#9e2a1b',
+                            background: m.accuracy >= 80 ? 'var(--emerald-soft)' : m.accuracy >= 60 ? 'var(--amber-soft)' : 'var(--coral-soft)',
+                            color: m.accuracy >= 80 ? 'var(--emerald)' : m.accuracy >= 60 ? 'var(--amber)' : 'var(--coral)',
                           }}
                         >
                           {tierLabel}
                         </span>
                       </div>
-                      <div style={{ fontSize: 11.5, color: '#68726c', marginTop: 2 }}>
+                      <div style={{ fontSize: 11.5, color: 'var(--text-secondary)', marginTop: 2 }}>
                         {m.correct} Correct · {m.wrong} Wrong · {m.flagged} Flagged of {m.total} QS
                       </div>
                     </div>
@@ -614,7 +630,7 @@ function SubjectWisePerformanceRadar({
                       >
                         {m.accuracy}%
                       </span>
-                      <div style={{ fontSize: 10.5, color: '#7a837e' }}>{m.correct}/{m.total} Correct</div>
+                      <div style={{ fontSize: 10.5, color: 'var(--text-muted)' }}>{m.correct}/{m.total} Correct</div>
                     </div>
                   </div>
                 )
@@ -689,13 +705,13 @@ function FocusTimer({
           <div className="focusTimerFill" style={{ width: `${progressPct}%` }} />
         </div>
 
-        <span style={{ fontSize: 12.5, color: '#5a625d', fontVariantNumeric: 'tabular-nums' }}>
+        <span style={{ fontSize: 12.5, color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
           Total Block Time: <strong>{formatDuration(totalBlockSeconds)}</strong>
         </span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 12, color: '#5a625d', fontWeight: 500 }}>
+        <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>
           Pace: {recommendedSeconds}s/Q
         </span>
         <button
@@ -770,12 +786,14 @@ function Reader({
 }) {
   const [picked, setPicked] = useState(savedChoice || '')
   const [showMetaFooter, setShowMetaFooter] = useState(false)
+  const [showPearlsDrawer, setShowPearlsDrawer] = useState(false)
 
   const fields = questionFields(question.full)
 
   // Sync with savedChoice for the current block/session
   useEffect(() => {
     setPicked(savedChoice || '')
+    setShowPearlsDrawer(false)
   }, [question.id, savedChoice, examMode, isReviewMode])
 
   const answer = fields.length ? fields[6].value.trim().replace(/^Correct Answer:\s*/i, '') : ''
@@ -990,6 +1008,115 @@ function Reader({
 
           <h3>Explanation</h3>
           <p>{explanationText}</p>
+
+          {/* Post-Answer Collapsible Accordion: Clinical Pearls, Biopsy Findings & Serology */}
+          {(() => {
+            const haystack = `${question.title} ${question.body} ${question.full} ${(question.tags || []).join(' ')}`.toLowerCase()
+            const isMpo = haystack.includes('mpo') || haystack.includes('p-anca') || haystack.includes('microscopic polyangiitis') || haystack.includes('mpa')
+            const ancaVariant: 'c-anca' | 'p-anca' = isMpo ? 'p-anca' : 'c-anca'
+            const ancaLabel = isMpo ? 'p-ANCA / MPO-ANCA' : 'c-ANCA / PR3-ANCA'
+            return (
+              <div
+                style={{
+                  marginTop: 16,
+                  borderTop: '1px solid var(--border-subtle)',
+                  paddingTop: 12,
+                }}
+              >
+                <button
+                  type="button"
+                  aria-expanded={showPearlsDrawer}
+                  onClick={() => setShowPearlsDrawer((prev) => !prev)}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 10,
+                    flexWrap: 'wrap',
+                    padding: '8px 12px',
+                    borderRadius: 10,
+                    border: '1px solid var(--border-subtle)',
+                    background: 'var(--bg-subtle)',
+                    color: 'var(--text-primary)',
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    {showCompanionIcons && (
+                      <PixelMicroscope size={16} active={showPearlsDrawer} />
+                    )}
+                    <span>Clinical Pearls &amp; Biopsy Findings</span>
+                  </span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        padding: '2px 8px',
+                        borderRadius: 999,
+                        border: '1px solid var(--border-subtle)',
+                        background: 'var(--bg-surface)',
+                        fontSize: 11.5,
+                        color: 'var(--text-secondary)',
+                      }}
+                    >
+                      {showCompanionIcons && (
+                        <PixelANCA_Y_Antibody size={14} variant={ancaVariant} />
+                      )}
+                      <span>Serology &amp; Pathophysiology · {ancaLabel}</span>
+                    </span>
+                    <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>
+                      {showPearlsDrawer ? 'Hide ▴' : 'Expand ▾'}
+                    </span>
+                  </span>
+                </button>
+
+                {showPearlsDrawer && (
+                  <div
+                    style={{
+                      marginTop: 8,
+                      padding: '12px 14px',
+                      borderRadius: 10,
+                      border: '1px solid var(--border-subtle)',
+                      background: 'var(--bg-surface)',
+                      fontSize: 13,
+                      lineHeight: 1.55,
+                      color: 'var(--text-secondary)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                      <span className="metaDrawerChip">
+                        <strong>Serology Context:</strong> {ancaLabel}
+                      </span>
+                      <span className="metaDrawerChip">
+                        <strong>Decision Target:</strong> {question.target || 'Treatment selection'}
+                      </span>
+                      <span className="metaDrawerChip">
+                        <strong>Evidence Source:</strong> {question.source}
+                      </span>
+                      <span className="metaDrawerChip">
+                        <strong>Clinical Topic:</strong> {question.topic}
+                      </span>
+                    </div>
+                    {question.tags && question.tags.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {question.tags.map((tag) => (
+                          <span key={tag} className="metaDrawerTag">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
         </div>
       ) : (
         <div className="examModeInlineNotice" data-mode="tutor">
@@ -1118,6 +1245,10 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
   const [isExamNavDrawerOpen, setIsExamNavDrawerOpen] = useState<boolean>(false)
 
+  // 21st.dev Command Menu (⌘K) & Edge-Anchored Mastery & Atlas Map Slide-Over Drawer (M)
+  const [isCommandMenuOpen, setIsCommandMenuOpen] = useState<boolean>(false)
+  const [isMasteryDrawerOpen, setIsMasteryDrawerOpen] = useState<boolean>(false)
+
   // Selected Glomerular Disease inside the "Glomerular Topics" tab
   const [selectedGlomerularDisease, setSelectedGlomerularDisease] = useState<string>('ANCA-Associated Vasculitis')
 
@@ -1241,6 +1372,8 @@ function App() {
   // Progressive Collapsible Accordion state for Create Test
   const [openAccordionStep, setOpenAccordionStep] = useState<1 | 2 | 3 | 4 | 5>(1)
   const [openSubDrawerTargets, setOpenSubDrawerTargets] = useState<boolean>(true)
+  const [openSubDrawerTopics, setOpenSubDrawerTopics] = useState<boolean>(true)
+  const [openSubDrawerTags, setOpenSubDrawerTags] = useState<boolean>(true)
   const [openSubDrawerSources, setOpenSubDrawerSources] = useState<boolean>(false)
 
   // Active Test Block Session state — blockAnswers is ALWAYS reset to {} when starting a block
@@ -1248,9 +1381,12 @@ function App() {
   const [testMode, setTestMode] = useState<'Tutor' | 'Timed'>('Tutor')
   const [testPoolMode, setTestPoolMode] = useState<'unused' | 'incorrect' | 'flagged' | 'all'>('all')
   const [selectedTargets, setSelectedTargets] = useState<string[]>([])
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([])
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedSources, setSelectedSources] = useState<string[]>([])
-  const [testTopic, setTestTopic] = useState<string>('')
+  const [activeDrillDownDomain, setActiveDrillDownDomain] = useState<string | null>(null)
   const [testCount, setTestCount] = useState<number>(10)
+  const [customTestCountInput, setCustomTestCountInput] = useState<string>('10')
   const [activeExamIds, setActiveExamIds] = useState<number[] | null>(null)
   const [activeExamIndex, setActiveExamIndex] = useState(0)
   const [blockAnswers, setBlockAnswers] = useState<Record<number, { choice: string; correct: boolean }>>({})
@@ -1427,6 +1563,222 @@ function App() {
     return map
   }, [rows])
 
+  const topicCounts = useMemo(() => {
+    const map: Record<string, number> = {}
+    for (const tp of topicList) {
+      map[tp] = rows.filter((q) =>
+        tp === 'Dosing & timing'
+          ? q.topic === 'Dosing & timing' || q.target === 'Dosing & timing'
+          : q.topic === tp
+      ).length
+    }
+    return map
+  }, [rows, topicList])
+
+  const tagCounts = useMemo(() => {
+    const map: Record<string, number> = {}
+    for (const q of rows) {
+      for (const tg of q.tags || []) {
+        map[tg] = (map[tg] || 0) + 1
+      }
+    }
+    return map
+  }, [rows])
+
+  // Canonical Domain-to-Filter-Criteria Synchronization Map:
+  // Maps any analytics domain drill-down (e.g., Diagnosis, Diagnostic reasoning, Dosing, Dosing & timing,
+  // Induction therapy, Maintenance therapy, Disease assessment, Trial outcomes, Trial eligibility, Safety & monitoring)
+  // to its corresponding Clinical Topics, Decision Targets, and Clinical Tags.
+  const domainFilterSyncMap = useMemo(() => {
+    const getTagsForQuestions = (predicate: (q: Q) => boolean, preferredTags: string[]) => {
+      const fromBank = Array.from(
+        new Set(rows.filter(predicate).flatMap((q) => q.tags || []))
+      )
+      const combined = Array.from(new Set([...preferredTags.filter((t) => allTags.includes(t)), ...fromBank]))
+      return combined
+    }
+
+    const map: Record<
+      string,
+      {
+        domainLabel: string
+        topics: string[]
+        targets: string[]
+        tags: string[]
+      }
+    > = {
+      Diagnosis: {
+        domainLabel: 'Diagnosis & Diagnostic Reasoning',
+        topics: ['Diagnosis'],
+        targets: ['Diagnostic reasoning'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Diagnosis' || q.target === 'Diagnostic reasoning',
+          ['Differential diagnosis', 'ANCA testing', 'Kidney biopsy', 'Acute kidney injury', 'PR3-ANCA']
+        ),
+      },
+      'Diagnostic reasoning': {
+        domainLabel: 'Diagnosis & Diagnostic Reasoning',
+        topics: ['Diagnosis'],
+        targets: ['Diagnostic reasoning'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Diagnosis' || q.target === 'Diagnostic reasoning',
+          ['Differential diagnosis', 'ANCA testing', 'Kidney biopsy', 'Acute kidney injury', 'PR3-ANCA']
+        ),
+      },
+      'Dosing & timing': {
+        domainLabel: 'Dosing & Timing',
+        topics: ['Dosing & timing'],
+        targets: ['Dosing & timing'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Dosing & timing' || q.target === 'Dosing & timing',
+          ['Dose adjustment', 'Folate supplementation', 'Glucocorticoids', 'Rituximab', 'Cyclophosphamide', 'Methotrexate', 'Azathioprine', 'Mycophenolate']
+        ),
+      },
+      Dosing: {
+        domainLabel: 'Dosing & Timing',
+        topics: ['Dosing & timing'],
+        targets: ['Dosing & timing'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Dosing & timing' || q.target === 'Dosing & timing',
+          ['Dose adjustment', 'Folate supplementation', 'Glucocorticoids', 'Rituximab', 'Cyclophosphamide', 'Methotrexate', 'Azathioprine', 'Mycophenolate']
+        ),
+      },
+      'Induction therapy': {
+        domainLabel: 'Induction Therapy',
+        topics: ['Induction therapy'],
+        targets: ['Treatment selection'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Induction therapy',
+          ['Induction therapy', 'Rituximab', 'Cyclophosphamide', 'Glucocorticoids', 'Plasma exchange']
+        ),
+      },
+      Induction: {
+        domainLabel: 'Induction Therapy',
+        topics: ['Induction therapy'],
+        targets: ['Treatment selection'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Induction therapy',
+          ['Induction therapy', 'Rituximab', 'Cyclophosphamide', 'Glucocorticoids', 'Plasma exchange']
+        ),
+      },
+      'Maintenance therapy': {
+        domainLabel: 'Maintenance Therapy',
+        topics: ['Maintenance therapy'],
+        targets: ['Treatment selection'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Maintenance therapy',
+          ['Maintenance therapy', 'Azathioprine', 'Rituximab', 'Methotrexate', 'Mycophenolate']
+        ),
+      },
+      Maintenance: {
+        domainLabel: 'Maintenance Therapy',
+        topics: ['Maintenance therapy'],
+        targets: ['Treatment selection'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Maintenance therapy',
+          ['Maintenance therapy', 'Azathioprine', 'Rituximab', 'Methotrexate', 'Mycophenolate']
+        ),
+      },
+      'Disease assessment': {
+        domainLabel: 'Disease Assessment',
+        topics: ['Disease assessment'],
+        targets: ['Disease assessment'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Disease assessment' || q.target === 'Disease assessment',
+          ['BVAS', 'Remission', 'Relapse', 'Follow-up', 'ANCA testing']
+        ),
+      },
+      'Trial outcomes': {
+        domainLabel: 'Trial Outcomes',
+        topics: ['Trial outcomes'],
+        targets: ['Evidence interpretation', 'Endpoint definitions'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Trial outcomes',
+          ['Remission', 'Relapse', 'Renal outcomes', 'Major relapse', 'Minor relapse']
+        ),
+      },
+      'Trial eligibility': {
+        domainLabel: 'Trial Eligibility & Applicability',
+        topics: ['Trial eligibility'],
+        targets: ['Trial applicability'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Trial eligibility' || q.target === 'Trial applicability',
+          ['Trial eligibility', 'Hepatitis B']
+        ),
+      },
+      'Trial applicability': {
+        domainLabel: 'Trial Eligibility & Applicability',
+        topics: ['Trial eligibility', 'Trial applicability'].filter((t) => topicList.includes(t)),
+        targets: ['Trial applicability'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Trial eligibility' || q.target === 'Trial applicability',
+          ['Trial eligibility', 'Hepatitis B']
+        ),
+      },
+      'Safety & monitoring': {
+        domainLabel: 'Safety & Monitoring',
+        topics: ['Safety & monitoring'].filter((t) => topicList.includes(t)),
+        targets: ['Safety & monitoring'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Safety & monitoring' || q.target === 'Safety & monitoring',
+          ['Drug safety', 'Blood counts', 'Infection', 'Prophylaxis', 'Fertility', 'Dose adjustment']
+        ),
+      },
+      'Evidence interpretation': {
+        domainLabel: 'Evidence Interpretation',
+        topics: ['Trial outcomes', 'Evidence interpretation'].filter((t) => topicList.includes(t)),
+        targets: ['Evidence interpretation'],
+        tags: getTagsForQuestions(
+          (q) => q.target === 'Evidence interpretation' || q.topic === 'Evidence interpretation',
+          ['Remission', 'Relapse', 'Renal outcomes', 'Drug safety']
+        ),
+      },
+      'Endpoint definitions': {
+        domainLabel: 'Endpoint Definitions',
+        topics: ['Trial outcomes', 'Endpoint definitions'].filter((t) => topicList.includes(t)),
+        targets: ['Endpoint definitions'],
+        tags: getTagsForQuestions(
+          (q) => q.target === 'Endpoint definitions' || q.topic === 'Endpoint definitions',
+          ['Major relapse', 'Minor relapse', 'BVAS', 'Remission', 'Relapse']
+        ),
+      },
+      'Treatment selection': {
+        domainLabel: 'Treatment Selection',
+        topics: ['Induction therapy', 'Maintenance therapy', 'Treatment selection'].filter((t) => topicList.includes(t)),
+        targets: ['Treatment selection'],
+        tags: getTagsForQuestions(
+          (q) => q.target === 'Treatment selection',
+          ['Induction therapy', 'Maintenance therapy', 'Rituximab', 'Cyclophosphamide', 'Glucocorticoids', 'Azathioprine', 'Plasma exchange']
+        ),
+      },
+      Transplantation: {
+        domainLabel: 'Transplantation',
+        topics: ['Transplantation'].filter((t) => topicList.includes(t)),
+        targets: ['Disease assessment'],
+        tags: getTagsForQuestions(
+          (q) => q.topic === 'Transplantation',
+          ['Transplantation', 'Remission', 'ANCA testing']
+        ),
+      },
+    }
+    return map
+  }, [rows, allTags, topicList])
+
+  // State-based synchronization effect: whenever activeDrillDownDomain is updated from an analytics drill-down,
+  // ensure corresponding topics, targets, and clinical tags are pre-selected in the test builder filter state.
+  useEffect(() => {
+    if (!activeDrillDownDomain) return
+    const syncEntry = domainFilterSyncMap[activeDrillDownDomain]
+    if (syncEntry) {
+      setSelectedTopics(syncEntry.topics)
+      setSelectedTargets(syncEntry.targets)
+      setSelectedTags(syncEntry.tags)
+      setOpenSubDrawerTopics(true)
+      setOpenSubDrawerTargets(true)
+      setOpenSubDrawerTags(true)
+    }
+  }, [activeDrillDownDomain, domainFilterSyncMap])
+
   // Sub-topic performance metrics for the Radar Chart & Study Plan Generator
   const targetPerformanceMetrics: SubtopicMetric[] = useMemo(() => {
     return allTargets.map((t) => {
@@ -1468,6 +1820,11 @@ function App() {
       }
     })
   }, [allTargets, rows, attempts, flaggedIds])
+
+  const sixAxisVasculitisMetrics = useMemo(
+    () => computeSixAxisVasculitisMetrics(rows, attempts, flaggedIds),
+    [rows, attempts, flaggedIds]
+  )
 
   const sourcePerformanceMetrics: SubtopicMetric[] = useMemo(() => {
     return labels.slice(0, 8).map((s) => {
@@ -1605,12 +1962,77 @@ function App() {
 
   // Matching pool count for the Create Test configuration screen BEFORE launching the test
   const matchingBuilderPool = useMemo(() => {
-    let pool = rows.filter(
-      (q) =>
-        (selectedTargets.length === 0 || selectedTargets.includes(q.target || 'Unclassified')) &&
-        (selectedSources.length === 0 || selectedSources.includes(q.source)) &&
-        (!testTopic || q.topic === testTopic)
-    )
+    let pool = rows.filter((q) => {
+      const matchesSource =
+        selectedSources.length === 0 || selectedSources.includes(q.source)
+      if (!matchesSource) return false
+
+      if (
+        selectedTopics.length === 0 &&
+        selectedTargets.length === 0 &&
+        selectedTags.length === 0
+      ) {
+        return true
+      }
+
+      // If an analytics domain drill-down is active, match questions belonging to that domain
+      if (activeDrillDownDomain) {
+        if (
+          activeDrillDownDomain === 'Diagnosis' ||
+          activeDrillDownDomain === 'Diagnostic reasoning'
+        ) {
+          return q.topic === 'Diagnosis' || q.target === 'Diagnostic reasoning'
+        }
+        if (
+          activeDrillDownDomain === 'Dosing & timing' ||
+          activeDrillDownDomain === 'Dosing'
+        ) {
+          return q.topic === 'Dosing & timing' || q.target === 'Dosing & timing'
+        }
+        if (
+          allTargets.includes(activeDrillDownDomain) &&
+          (!topicList.includes(activeDrillDownDomain) ||
+            activeDrillDownDomain === 'Treatment selection' ||
+            activeDrillDownDomain === 'Evidence interpretation' ||
+            activeDrillDownDomain === 'Endpoint definitions' ||
+            activeDrillDownDomain === 'Trial applicability' ||
+            activeDrillDownDomain === 'Safety & monitoring')
+        ) {
+          return (
+            (q.target || 'Unclassified') === activeDrillDownDomain ||
+            q.topic === activeDrillDownDomain
+          )
+        }
+        if (topicList.includes(activeDrillDownDomain)) {
+          return (
+            q.topic === activeDrillDownDomain ||
+            (activeDrillDownDomain === 'Trial eligibility' &&
+              q.target === 'Trial applicability')
+          )
+        }
+      }
+
+      const matchesTopic =
+        selectedTopics.length > 0 &&
+        selectedTopics.some((tp) =>
+          tp === 'Dosing & timing'
+            ? q.topic === 'Dosing & timing' || q.target === 'Dosing & timing'
+            : tp === 'Diagnosis'
+            ? q.topic === 'Diagnosis' || q.target === 'Diagnostic reasoning'
+            : q.topic === tp
+        )
+      const matchesTarget =
+        selectedTargets.length > 0 &&
+        selectedTargets.includes(q.target || 'Unclassified')
+      const matchesTag =
+        selectedTags.length > 0 &&
+        (q.tags || []).some((tg) => selectedTags.includes(tg))
+
+      if (selectedTopics.length > 0 || selectedTargets.length > 0) {
+        return matchesTopic || matchesTarget
+      }
+      return matchesTag
+    })
     if (testPoolMode === 'unused') {
       pool = pool.filter((q) => !attempts[q.id])
     } else if (testPoolMode === 'incorrect') {
@@ -1619,7 +2041,19 @@ function App() {
       pool = pool.filter((q) => flaggedIds.includes(q.id))
     }
     return pool
-  }, [rows, selectedTargets, selectedSources, testTopic, testPoolMode, attempts, flaggedIds])
+  }, [
+    rows,
+    selectedTargets,
+    selectedTopics,
+    selectedTags,
+    selectedSources,
+    activeDrillDownDomain,
+    allTargets,
+    topicList,
+    testPoolMode,
+    attempts,
+    flaggedIds,
+  ])
 
   // Functional Stacked Bar Chart Data — accurately split across the ANCA-Vasculitis subjects in GitHub
   const chartBars = useMemo(() => {
@@ -1629,7 +2063,16 @@ function App() {
         const corr = pool.filter((q) => attempts[q.id]?.correct === true).length
         const wrongOrFlag = pool.length - corr
         const acc = pool.length > 0 ? Math.round((corr / pool.length) * 100) : 0
-        const shortLabel = t.split(' ')[0].replace(/[^A-Za-z]/g, '').slice(0, 9)
+        const shortLabel =
+          t === 'Diagnostic reasoning'
+            ? 'Diagnosis'
+            : t === 'Endpoint definitions'
+            ? 'Endpoints'
+            : t === 'Disease assessment'
+            ? 'Assessment'
+            : t === 'Trial applicability'
+            ? 'Trial App.'
+            : t.split(' ')[0].replace(/[^A-Za-z]/g, '').slice(0, 9)
         return {
           key: t,
           shortLabel,
@@ -1670,11 +2113,28 @@ function App() {
         'Dosing & timing',
       ]
       return majorTopics.map((tp) => {
-        const pool = rows.filter((q) => q.topic === tp)
+        const pool = rows.filter((q) =>
+          tp === 'Dosing & timing'
+            ? q.topic === 'Dosing & timing' || q.target === 'Dosing & timing'
+            : q.topic === tp
+        )
         const corr = pool.filter((q) => attempts[q.id]?.correct === true).length
         const wrongOrFlag = pool.length - corr
         const acc = pool.length > 0 ? Math.round((corr / pool.length) * 100) : 0
-        const shortLabel = tp.split(' ')[0].slice(0, 9)
+        const shortLabel =
+          tp === 'Induction therapy'
+            ? 'Induction'
+            : tp === 'Trial outcomes'
+            ? 'Outcomes'
+            : tp === 'Disease assessment'
+            ? 'Assessment'
+            : tp === 'Maintenance therapy'
+            ? 'Maint.'
+            : tp === 'Trial eligibility'
+            ? 'Eligibility'
+            : tp === 'Dosing & timing'
+            ? 'Dosing'
+            : tp
         return {
           key: tp,
           shortLabel,
@@ -1778,7 +2238,7 @@ function App() {
       rawItems = [
         {
           id: 'correct',
-          label: 'Correct (85%)',
+          label: 'Correct',
           count: gCorrect,
           fill: 'url(#gaugeHatch)',
           swatch: '#b9dec8',
@@ -1786,7 +2246,7 @@ function App() {
         },
         {
           id: 'wrong',
-          label: 'Wrong (10%)',
+          label: 'Incorrect',
           count: gWrong,
           fill: '#7347f5',
           swatch: '#7347f5',
@@ -1794,7 +2254,7 @@ function App() {
         },
         {
           id: 'flagged',
-          label: 'Flagged (5%)',
+          label: 'Flagged',
           count: gFlagged,
           fill: '#38b6ff',
           swatch: '#38b6ff',
@@ -1943,20 +2403,88 @@ function App() {
 
   /**
    * Opens the Create Test configuration screen (without showing any questions yet)
-   * pre-populated with any requested filter options.
+   * pre-populated with any requested filter options, and automatically synchronizes
+   * the corresponding Clinical Topics, Decision Targets, and Clinical Tags for any
+   * analytics domain drill-down (e.g., Diagnosis, Dosing & timing, Induction therapy).
    */
   function openCreateTestConfigurator(opts?: {
     poolMode?: 'unused' | 'incorrect' | 'flagged' | 'all'
+    domain?: string
     targets?: string[]
+    topics?: string[]
+    tags?: string[]
     sources?: string[]
     topic?: string
     initialStep?: 1 | 2 | 3 | 4 | 5
   }) {
-    if (opts?.poolMode !== undefined) setTestPoolMode(opts.poolMode)
-    if (opts?.targets !== undefined) setSelectedTargets(opts.targets)
-    if (opts?.sources !== undefined) setSelectedSources(opts.sources)
-    if (opts?.topic !== undefined) setTestTopic(opts.topic)
-    setOpenAccordionStep(opts?.initialStep ?? 1)
+    const rawTargets = opts?.targets ?? []
+    const rawTopics = opts?.topics ?? (opts?.topic ? [opts.topic] : [])
+    const rawTags = opts?.tags ?? []
+    const nextSources = opts?.sources ?? []
+
+    // Identify if this navigation is a single-domain or multi-domain analytics drill-down
+    const candidateDomains = [
+      ...(opts?.domain ? [opts.domain] : []),
+      ...rawTopics,
+      ...rawTargets,
+    ]
+    const matchedSyncEntries = candidateDomains
+      .map((d) => domainFilterSyncMap[d])
+      .filter(Boolean)
+
+    let nextTopics = [...rawTopics]
+    let nextTargets = [...rawTargets]
+    let nextTags = [...rawTags]
+
+    if (matchedSyncEntries.length > 0) {
+      nextTopics = Array.from(
+        new Set([...nextTopics, ...matchedSyncEntries.flatMap((e) => e.topics)])
+      )
+      nextTargets = Array.from(
+        new Set([...nextTargets, ...matchedSyncEntries.flatMap((e) => e.targets)])
+      )
+      nextTags = Array.from(
+        new Set([...nextTags, ...matchedSyncEntries.flatMap((e) => e.tags)])
+      )
+      setActiveDrillDownDomain(candidateDomains[0] || null)
+    } else if (nextSources.length > 0) {
+      const sourceTags = Array.from(
+        new Set(
+          rows
+            .filter((q) => nextSources.includes(q.source))
+            .flatMap((q) => q.tags || [])
+        )
+      )
+      nextTags = Array.from(new Set([...nextTags, ...sourceTags]))
+      setActiveDrillDownDomain(null)
+    } else {
+      setActiveDrillDownDomain(null)
+    }
+
+    setTestPoolMode(opts?.poolMode ?? 'all')
+    setSelectedTargets(nextTargets)
+    setSelectedTopics(nextTopics)
+    setSelectedTags(nextTags)
+    setSelectedSources(nextSources)
+
+    const hasSpecificFilter =
+      nextTargets.length > 0 ||
+      nextTopics.length > 0 ||
+      nextTags.length > 0 ||
+      nextSources.length > 0
+    if (hasSpecificFilter) {
+      setOpenSubDrawerTopics(nextTopics.length > 0 || matchedSyncEntries.length > 0)
+      setOpenSubDrawerTargets(nextTargets.length > 0 || matchedSyncEntries.length > 0)
+      setOpenSubDrawerTags(nextTags.length > 0 || matchedSyncEntries.length > 0)
+      setOpenSubDrawerSources(nextSources.length > 0)
+    } else {
+      setOpenSubDrawerTopics(true)
+      setOpenSubDrawerTargets(true)
+      setOpenSubDrawerTags(true)
+      setOpenSubDrawerSources(false)
+    }
+
+    setOpenAccordionStep(opts?.initialStep ?? (hasSpecificFilter ? 4 : 1))
     setActiveExamIds(null)
     setIsBlockSubmitted(false)
     setShowEndBlockConfirm(false)
@@ -1975,7 +2503,8 @@ function App() {
    */
   function handleStartConfiguredTest() {
     const pool = matchingBuilderPool.length > 0 ? matchingBuilderPool : rows
-    const selected = pool.slice(0, testCount).map((q) => q.id)
+    const desiredCount = Math.max(1, Math.min(testCount, pool.length))
+    const selected = pool.slice(0, desiredCount).map((q) => q.id)
     setBlockAnswers({})
     setQuestionElapsedMap({})
     setIsBlockSubmitted(false)
@@ -1994,6 +2523,10 @@ function App() {
   function handleLaunchStudyPlanBlock() {
     const ids = adaptiveStudyPlan.questionIds.length > 0 ? adaptiveStudyPlan.questionIds : rows.slice(0, 12).map((q) => q.id)
     setSelectedTargets(adaptiveStudyPlan.weakTargetNames)
+    setSelectedTopics([])
+    setSelectedTags([])
+    setSelectedSources([])
+    setActiveDrillDownDomain(null)
     setTestMode('Tutor')
     setBlockAnswers({})
     setQuestionElapsedMap({})
@@ -2008,8 +2541,62 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  function syncTagsForTopicsAndTargets(nextTopics: string[], nextTargets: string[]) {
+    const domainKeys = [...nextTopics, ...nextTargets]
+    const entries = domainKeys.map((k) => domainFilterSyncMap[k]).filter(Boolean)
+    if (entries.length > 0) {
+      const syncedTags = Array.from(new Set(entries.flatMap((e) => e.tags)))
+      setSelectedTags(syncedTags)
+    } else if (nextTopics.length === 0 && nextTargets.length === 0) {
+      setSelectedTags([])
+    }
+  }
+
   function toggleTargetSelection(t: string) {
-    setSelectedTargets((prev) => (prev.includes(t) ? prev.filter((item) => item !== t) : [...prev, t]))
+    setActiveDrillDownDomain(null)
+    setSelectedTargets((prev) => {
+      const isRemoving = prev.includes(t)
+      const nextTargets = isRemoving ? prev.filter((item) => item !== t) : [...prev, t]
+      // Synchronize corresponding topic & tags when selecting a domain target (e.g., Diagnostic reasoning -> Diagnosis, Dosing & timing)
+      const syncEntry = domainFilterSyncMap[t]
+      let nextTopics = selectedTopics
+      if (!isRemoving && syncEntry) {
+        nextTopics = Array.from(new Set([...selectedTopics, ...syncEntry.topics]))
+        setSelectedTopics(nextTopics)
+      } else if (isRemoving && (t === 'Diagnostic reasoning' || t === 'Dosing & timing' || t === 'Disease assessment')) {
+        const pairedTopic = t === 'Diagnostic reasoning' ? 'Diagnosis' : t
+        nextTopics = selectedTopics.filter((tp) => tp !== pairedTopic)
+        setSelectedTopics(nextTopics)
+      }
+      syncTagsForTopicsAndTargets(nextTopics, nextTargets)
+      return nextTargets
+    })
+  }
+
+  function toggleTopicSelection(tp: string) {
+    setActiveDrillDownDomain(null)
+    setSelectedTopics((prev) => {
+      const isRemoving = prev.includes(tp)
+      const nextTopics = isRemoving ? prev.filter((item) => item !== tp) : [...prev, tp]
+      // Synchronize corresponding decision target & clinical tags when selecting a topic (e.g., Diagnosis -> Diagnostic reasoning, Dosing & timing)
+      const syncEntry = domainFilterSyncMap[tp]
+      let nextTargets = selectedTargets
+      if (!isRemoving && syncEntry) {
+        nextTargets = Array.from(new Set([...selectedTargets, ...syncEntry.targets]))
+        setSelectedTargets(nextTargets)
+      } else if (isRemoving && (tp === 'Diagnosis' || tp === 'Dosing & timing' || tp === 'Disease assessment')) {
+        const pairedTarget = tp === 'Diagnosis' ? 'Diagnostic reasoning' : tp
+        nextTargets = selectedTargets.filter((tg) => tg !== pairedTarget)
+        setSelectedTargets(nextTargets)
+      }
+      syncTagsForTopicsAndTargets(nextTopics, nextTargets)
+      return nextTopics
+    })
+  }
+
+  function toggleTagSelection(tg: string) {
+    setActiveDrillDownDomain(null)
+    setSelectedTags((prev) => (prev.includes(tg) ? prev.filter((item) => item !== tg) : [...prev, tg]))
   }
 
   function toggleSourceSelection(s: string) {
@@ -2059,13 +2646,29 @@ function App() {
   }, [activeExamIndex, isInsideExamBlock])
 
   // Global Keyboard Navigation:
+  // - `⌘K` or `Ctrl+K` toggles the 21st.dev Command Menu
+  // - `M` toggles the Slide-Over Mastery & Atlas Map Drawer
   // - `[` toggles the Question Navigator / Sidebar drawer
   // - `ArrowLeft` / `ArrowRight` navigates Previous / Next question inside an active block
   useEffect(() => {
     function onGlobalKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setIsCommandMenuOpen((prev) => !prev)
+        return
+      }
+
       const tag = (e.target as HTMLElement)?.tagName
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target as HTMLElement)?.isContentEditable) {
+        return
+      }
       if (e.metaKey || e.ctrlKey || e.altKey) return
+
+      if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault()
+        setIsMasteryDrawerOpen((prev) => !prev)
+        return
+      }
 
       if (e.key === '[') {
         e.preventDefault()
@@ -2183,7 +2786,7 @@ function App() {
             ))}
           </nav>
 
-          {/* Consolidated De-noised Right Header Controls: Compact X/Y Counter + PixelFiltrateDrop, Companion Toggle, Theme Toggle, Settings */}
+          {/* Consolidated De-noised Right Header Controls: X/Y Counter + PixelFiltrateDrop, Theme Toggle, Settings */}
           <div className="luminaActionCluster">
             <button
               type="button"
@@ -2199,16 +2802,6 @@ function App() {
               <strong>{attemptedCount}</strong>
               <span>/</span>
               <span>{totalAvailable}</span>
-            </button>
-
-            <button
-              type="button"
-              className="companionTogglePill"
-              aria-pressed={companionIcons}
-              title="Toggle pixel nephrology companion icons on or off for distraction-free review"
-              onClick={() => setCompanionIcons((prev) => !prev)}
-            >
-              <span>Companion Icons: {companionIcons ? 'On' : 'Off'}</span>
             </button>
 
             <button
@@ -2293,22 +2886,11 @@ function App() {
                       className="secondaryPillBtn"
                       style={{ width: '100%', justifyContent: 'center', padding: '8px 12px' }}
                       onClick={() => {
-                        handleRestoreDemoBaseline()
-                        setShowNotifications(false)
-                      }}
-                    >
-                      Restore 85% / 10% / 5% Populated Stats
-                    </button>
-                    <button
-                      type="button"
-                      className="secondaryPillBtn"
-                      style={{ width: '100%', justifyContent: 'center', padding: '8px 12px' }}
-                      onClick={() => {
                         handleResetAllProgress()
                         setShowNotifications(false)
                       }}
                     >
-                      Clear All Answers &amp; Flags (0%)
+                      Clear All Answers &amp; Flags
                     </button>
                   </div>
                 </div>
@@ -2378,7 +2960,7 @@ function App() {
               <section
                 id="study-plan-logic-panel"
                 className="studyPlanBanner"
-                style={{ borderColor: '#0e6f40', background: '#ffffff' }}
+                style={{ borderColor: 'var(--emerald)', background: 'var(--bg-card)' }}
                 aria-label="Study Plan Logic"
               >
                 <div className="cardHeaderRow" style={{ marginBottom: 12 }}>
@@ -2386,8 +2968,8 @@ function App() {
                     <span
                       style={{
                         display: 'inline-block',
-                        background: '#e6f7ef',
-                        color: '#0e6f40',
+                        background: 'var(--emerald-soft)',
+                        color: 'var(--emerald)',
                         fontSize: 11,
                         fontWeight: 700,
                         padding: '3px 10px',
@@ -2402,7 +2984,7 @@ function App() {
                     <h2 className="cardTitle" style={{ fontSize: 19 }}>
                       Study Plan Logic · Step-by-Step Breakdown
                     </h2>
-                    <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#45544c' }}>
+                    <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
                       How the <strong>Create Study Plan</strong> feature evaluates your performance ({correctPct}% Correct · {wrongPct}% Incorrect · {flaggedPct}% Flagged across {totalAvailable} questions):
                     </p>
                   </div>
@@ -2441,8 +3023,8 @@ function App() {
                   {/* Step 1 */}
                   <div
                     style={{
-                      background: '#f8fbf9',
-                      border: '1px solid #dce8e0',
+                      background: 'var(--bg-subtle)',
+                      border: '1px solid var(--border-card)',
                       borderRadius: 16,
                       padding: '15px 16px',
                       display: 'flex',
@@ -2456,11 +3038,11 @@ function App() {
                         <span className="accordionStepCircle" style={{ background: '#19b368', color: '#fff' }}>
                           1
                         </span>
-                        <strong style={{ fontSize: 14.5, color: '#141816' }}>
+                        <strong style={{ fontSize: 14.5, color: 'var(--text-primary)' }}>
                           1. It analyzes your historical accuracy across all glomerular disease sub-topics.
                         </strong>
                       </div>
-                      <p style={{ margin: 0, fontSize: 13, color: '#4f5b53' }}>
+                      <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)' }}>
                         Aggregates every attempt and flag across all 8 sub-topics in real time to calculate your live correctness rate (%):
                       </p>
                     </div>
@@ -2475,8 +3057,8 @@ function App() {
                               fontWeight: 600,
                               padding: '3px 8px',
                               borderRadius: 999,
-                              background: m.accuracy < 60 ? '#fdece6' : m.accuracy < 80 ? '#fef6e6' : '#e6f7ef',
-                              color: m.accuracy < 60 ? '#9e2a1b' : m.accuracy < 80 ? '#965606' : '#0e6f40',
+                              background: m.accuracy < 60 ? 'var(--coral-soft)' : m.accuracy < 80 ? 'var(--amber-soft)' : 'var(--emerald-soft)',
+                              color: m.accuracy < 60 ? 'var(--coral)' : m.accuracy < 80 ? 'var(--amber)' : 'var(--emerald)',
                             }}
                           >
                             {m.shortLabel}: {m.accuracy}%
@@ -2488,8 +3070,8 @@ function App() {
                   {/* Step 2 */}
                   <div
                     style={{
-                      background: '#fffaf8',
-                      border: '1px solid #f3d2c7',
+                      background: 'var(--bg-subtle)',
+                      border: '1px solid var(--border-card)',
                       borderRadius: 16,
                       padding: '15px 16px',
                       display: 'flex',
@@ -2503,11 +3085,11 @@ function App() {
                         <span className="accordionStepCircle" style={{ background: '#ea582c', color: '#fff' }}>
                           2
                         </span>
-                        <strong style={{ fontSize: 14.5, color: '#141816' }}>
+                        <strong style={{ fontSize: 14.5, color: 'var(--text-primary)' }}>
                           2. It identifies &apos;weak areas&apos; where performance is below 60%.
                         </strong>
                       </div>
-                      <p style={{ margin: 0, fontSize: 13, color: '#4f5b53' }}>
+                      <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)' }}>
                         Isolates sub-topics falling strictly below the <strong>60% mastery threshold</strong> for immediate clinical remediation:
                       </p>
                     </div>
@@ -2524,15 +3106,15 @@ function App() {
                               justifyContent: 'space-between',
                               flexWrap: 'wrap',
                               gap: 6,
-                              background: '#ffffff',
-                              border: '1px solid #f2cfc4',
+                              background: 'var(--bg-card)',
+                              border: '1px solid var(--border-card)',
                               borderRadius: 10,
                               padding: '6px 10px',
                               fontSize: 12,
                             }}
                           >
-                            <strong style={{ color: '#9e2a1b' }}>{m.name}</strong>
-                            <span style={{ fontWeight: 700, color: '#9e2a1b' }}>
+                            <strong style={{ color: 'var(--coral)' }}>{m.name}</strong>
+                            <span style={{ fontWeight: 700, color: 'var(--coral)' }}>
                               {m.accuracy}% ({m.correct}/{m.total} Correct)
                             </span>
                           </div>
@@ -2543,8 +3125,8 @@ function App() {
                   {/* Step 3 */}
                   <div
                     style={{
-                      background: '#f8fbf9',
-                      border: '1px solid #dce8e0',
+                      background: 'var(--bg-subtle)',
+                      border: '1px solid var(--border-card)',
                       borderRadius: 16,
                       padding: '15px 16px',
                       display: 'flex',
@@ -2555,14 +3137,14 @@ function App() {
                   >
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                        <span className="accordionStepCircle" style={{ background: '#121316', color: '#fff' }}>
+                        <span className="accordionStepCircle" style={{ background: 'var(--dark-cta)', color: '#fff' }}>
                           3
                         </span>
-                        <strong style={{ fontSize: 14.5, color: '#141816' }}>
+                        <strong style={{ fontSize: 14.5, color: 'var(--text-primary)' }}>
                           3. It generates a custom quiz mix prioritizing these weak topics to help bridge knowledge gaps.
                         </strong>
                       </div>
-                      <p style={{ margin: 0, fontSize: 13, color: '#4f5b53' }}>
+                      <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)' }}>
                         Builds a weighted {studyPlanBlockSize}-question practice block pulling <strong>Incorrect</strong> &amp; <strong>Flagged</strong> items first and hiding prior answers:
                       </p>
                     </div>
@@ -2573,11 +3155,11 @@ function App() {
                           style={{
                             fontSize: 11.5,
                             fontWeight: 600,
-                            background: '#ffffff',
-                            border: '1px solid #cfe0d5',
+                            background: 'var(--bg-card)',
+                            border: '1px solid var(--border-card)',
                             borderRadius: 8,
                             padding: '4px 8px',
-                            color: '#141816',
+                            color: 'var(--text-primary)',
                           }}
                         >
                           {alloc.shortLabel}: <strong>+{alloc.allocatedCount} QS</strong>
@@ -2613,7 +3195,7 @@ function App() {
                         Personalized Weak-Area Recovery Plan ({adaptiveStudyPlan.questionIds.length} Questions)
                       </h2>
                     </div>
-                    <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#45544c' }}>
+                    <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
                       Based on your current bank stats ({correctPct}% Correct · {wrongPct}% Wrong · {flaggedPct}% Flagged),
                       the engine identified your weak areas (&lt;60% accuracy) and built a custom remediation mix below.
                     </p>
@@ -2664,14 +3246,14 @@ function App() {
                     gap: 12,
                     flexWrap: 'wrap',
                     padding: '10px 14px',
-                    background: '#f4faf6',
+                    background: 'var(--bg-subtle)',
                     borderRadius: 14,
-                    border: '1px solid #d8eadf',
+                    border: '1px solid var(--border-card)',
                     marginBottom: 14,
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 12.5, fontWeight: 700, color: '#0e6f40' }}>Customize Study Plan Mix:</span>
+                    <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--emerald)' }}>Customize Study Plan Mix:</span>
                     <div className="seg" style={{ marginBottom: 0, padding: 3 }}>
                       {(
                         [
@@ -2694,15 +3276,15 @@ function App() {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#45544c' }}>Plan Size:</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>Plan Size:</span>
                     {([12, 16, 20] as const).map((sz) => (
                       <button
                         key={sz}
                         type="button"
                         className="qcardSolveBtn"
                         style={{
-                          background: studyPlanBlockSize === sz ? '#121316' : '#fff',
-                          color: studyPlanBlockSize === sz ? '#fff' : '#141816',
+                          background: studyPlanBlockSize === sz ? 'var(--dark-cta)' : 'var(--bg-card)',
+                          color: studyPlanBlockSize === sz ? '#fff' : 'var(--text-primary)',
                         }}
                         onClick={() => setStudyPlanBlockSize(sz)}
                       >
@@ -2721,21 +3303,21 @@ function App() {
                           style={{
                             fontSize: 11,
                             fontWeight: 700,
-                            color: item.accuracy < 60 ? '#b42318' : '#965606',
-                            background: item.accuracy < 60 ? '#fee4e2' : '#fef6e6',
+                            color: item.accuracy < 60 ? 'var(--coral)' : 'var(--amber)',
+                            background: item.accuracy < 60 ? 'var(--coral-soft)' : 'var(--amber-soft)',
                             padding: '2px 8px',
                             borderRadius: 999,
                           }}
                         >
                           {item.accuracy < 60 ? `Weak Area (<60%) #${idx + 1}` : `Review Area #${idx + 1}`} · +{item.allocatedCount} QS
                         </span>
-                        <span style={{ fontSize: 13.5, fontWeight: 700, color: item.accuracy < 60 ? '#b42318' : '#965606' }}>
+                        <span style={{ fontSize: 13.5, fontWeight: 700, color: item.accuracy < 60 ? 'var(--coral)' : 'var(--amber)' }}>
                           {item.accuracy}% Correct
                         </span>
                       </div>
-                      <div style={{ fontWeight: 600, fontSize: 15, color: '#141816' }}>{item.name}</div>
-                      <div style={{ fontSize: 12, color: '#5a625d' }}>{item.reason}</div>
-                      <div style={{ fontSize: 11.5, color: '#0e6f40', fontWeight: 600 }}>
+                      <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--text-primary)' }}>{item.name}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{item.reason}</div>
+                      <div style={{ fontSize: 11.5, color: 'var(--emerald)', fontWeight: 600 }}>
                         Mix: {item.wrongInChosen} Wrong retry + {item.flaggedInChosen} Flagged + {item.reinforcementInChosen} Reinforcement
                       </div>
                       <button
@@ -2756,323 +3338,77 @@ function App() {
             )}
 
             {/* ================================================================
-                MOBILE & TABLET PRIORITY TOP SNAPSHOT (<= 1100px)
-                Puts the most important student metrics & weak-area actions right
-                at the top without overcrowding the mobile screen.
+                1. PRIORITIZED TOP STATS BAND (Headline Session KPI Strip)
+                Single hairline-divided horizontal strip displaying 4 animated
+                count-up metrics right at the top of the main dashboard view.
                ================================================================ */}
-            <section className="mobilePrioritySnapshot" aria-label="Student Priority Overview">
-              <div className="mobilePriorityGrid4">
-                <button
-                  type="button"
-                  className="mobilePriorityCard"
-                  onClick={() => openFilteredQBank({ attemptFilter: 'correct' })}
-                >
-                  <div className="mobilePriorityTop">
-                    <span className="mobilePriorityVal" style={{ color: '#0e6f40' }}>{correctPct}%</span>
-                    <span className="mobilePriorityTag green">{correctCount} QS</span>
-                  </div>
-                  <div className="mobilePriorityLabel">Correct Answers</div>
-                </button>
-
-                <button
-                  type="button"
-                  className="mobilePriorityCard"
-                  onClick={() => openCreateTestConfigurator({ poolMode: 'incorrect' })}
-                >
-                  <div className="mobilePriorityTop">
-                    <span className="mobilePriorityVal" style={{ color: '#b42318' }}>{wrongPct}%</span>
-                    <span className="mobilePriorityTag coral">{wrongCount} Retry</span>
-                  </div>
-                  <div className="mobilePriorityLabel">Wrong · Tap to Retry</div>
-                </button>
-
-                <button
-                  type="button"
-                  className="mobilePriorityCard"
-                  onClick={() => openFilteredQBank({ attemptFilter: 'flagged' })}
-                >
-                  <div className="mobilePriorityTop">
-                    <span className="mobilePriorityVal" style={{ color: '#965606' }}>{flaggedCount}</span>
-                    <span className="mobilePriorityTag amber">{flaggedPct}%</span>
-                  </div>
-                  <div className="mobilePriorityLabel">Flagged for Review</div>
-                </button>
-
-                <button
-                  type="button"
-                  className="mobilePriorityCard"
-                  onClick={() => openFilteredQBank({ attemptFilter: '' })}
-                >
-                  <div className="mobilePriorityTop">
-                    <span className="mobilePriorityVal">{totalAvailable}</span>
-                    <span className="mobilePriorityTag purple">{notesCount} Notes</span>
-                  </div>
-                  <div className="mobilePriorityLabel">Total QBank ({unusedCount} Left)</div>
-                </button>
-              </div>
-
-              {/* Priority Weak Areas (<60%) Quick-Practice Strip at the top for mobile/tablet students */}
-              <div className="mobileWeakAreasStrip">
-                <div className="mobileWeakAreasHeader">
-                  <div>
-                    <strong style={{ fontSize: 13.5, color: '#141816' }}>Priority Weak Areas (&lt;60% Accuracy)</strong>
-                    <span style={{ fontSize: 12, color: '#5a625d', display: 'block' }}>
-                      Tap any weak sub-topic below to start a focused recovery block immediately:
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    className="qcardSolveBtn"
-                    onClick={() => setShowStudyPlanLogicModal((prev) => !prev)}
-                  >
-                    ℹ {showStudyPlanLogicModal ? 'Hide Logic' : 'Study Plan Logic'}
-                  </button>
-                </div>
-                <div className="mobileWeakPillsRow">
-                  {targetPerformanceMetrics
-                    .filter((m) => m.accuracy < 60)
-                    .sort((a, b) => a.accuracy - b.accuracy)
-                    .map((m) => (
-                      <button
-                        key={m.name}
-                        type="button"
-                        className="mobileWeakPillBtn"
-                        onClick={() => openCreateTestConfigurator({ targets: [m.name], initialStep: 4 })}
-                      >
-                        <span>{m.name}</span>
-                        <strong>{m.accuracy}% · Practice →</strong>
-                      </button>
-                    ))}
-                </div>
-              </div>
-            </section>
-
-            {/* Desktop Row 1: Accuracy Overview (2 cards) + Question Bank Usage (3 cards) */}
-            <div className="overviewGrid desktopOverviewOnly">
-              {/* Left 2-card group: Test Accuracy */}
-              <div>
-                <div className="overviewGroupHeader">
-                  <h2 className="overviewGroupTitle">Test Accuracy (85% Correct / 10% Wrong)</h2>
-                </div>
-                <div className="overviewCards2">
-                  {/* Card 1: Correct Answer % (~85%) */}
-                  <button
-                    type="button"
-                    className="metricCard metricCardInteractive"
-                    onClick={() => openFilteredQBank({ attemptFilter: 'correct' })}
-                  >
-                    <div className="metricCardTop">
-                      <div>
-                        <div className="metricValue">{correctPct}%</div>
-                        <div className="metricLabel">Correct Answer Percentage</div>
-                      </div>
-                      <span className="metricIconCircle green" aria-hidden="true">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1">
-                          <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </span>
-                    </div>
-                    <div className="attendedRow">
-                      <StatusBadgeTriple labels={['A', 'C', 'E']} palette={['#19b368', '#2a7f56', '#4a9e73']} />
-                      <span className="attendedText">
-                        {correctCount} Correct of {totalAvailable} QS
-                      </span>
-                    </div>
-                  </button>
-
-                  {/* Card 2: Wrong Answer % (~10%) */}
-                  <button
-                    type="button"
-                    className="metricCard metricCardInteractive"
-                    onClick={() => openFilteredQBank({ attemptFilter: 'incorrect' })}
-                  >
-                    <div className="metricCardTop">
-                      <div>
-                        <div className="metricValue">{wrongPct}%</div>
-                        <div className="metricLabel">Wrong Answer Percentage</div>
-                      </div>
-                      <span className="metricIconCircle blue" aria-hidden="true">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="12" cy="12" r="9" />
-                          <path d="M15 9l-6 6M9 9l6 6" strokeLinecap="round" />
-                        </svg>
-                      </span>
-                    </div>
-                    <div className="attendedRow">
-                      <StatusBadgeTriple labels={['B', 'D', '!']} palette={['#2e7cf6', '#ea582c', '#7347f5']} />
-                      <span className="attendedText">{wrongCount} Wrong · Click to Retry</span>
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Right 3-card group: Question Bank Availability */}
-              <div>
-                <div className="overviewGroupHeader">
-                  <h2 className="overviewGroupTitle">Question Bank Breakdown (228 Total · 5% Flagged)</h2>
-                </div>
-                <div className="overviewCards3">
-                  {/* Card 3: Total Questions Available (228) */}
-                  <button
-                    type="button"
-                    className="metricCard metricCardInteractive"
-                    onClick={() => openFilteredQBank({ attemptFilter: '' })}
-                  >
-                    <div className="metricCardTop">
-                      <div>
-                        <div className="metricValue">{totalAvailable}</div>
-                        <div className="metricLabel">Questions Available</div>
-                      </div>
-                      <span className="metricIconCircle green" aria-hidden="true">
-                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
-                          <path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z" />
-                          <path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z" />
-                        </svg>
-                      </span>
-                    </div>
-                    <BarcodeTicks
-                      total={22}
-                      filled={Math.max(1, Math.round((correctCount / Math.max(1, totalAvailable)) * 22))}
-                      tone="green"
-                    />
-                  </button>
-
-                  {/* Card 4: Weak Area Retry Pool (Wrong + Flagged = 34 QS) */}
-                  <button
-                    type="button"
-                    className="metricCard metricCardInteractive"
-                    onClick={() => openCreateTestConfigurator({ poolMode: 'incorrect' })}
-                  >
-                    <div className="metricCardTop">
-                      <div>
-                        <div className="metricValue">{wrongCount + unusedCount}</div>
-                        <div className="metricLabel">Needs Retry / Left ({wrongCount} Wrong · {unusedCount} Left)</div>
-                      </div>
-                      <span className="metricIconCircle blue" aria-hidden="true">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
-                          <path d="M9 11l3 3L22 4" />
-                          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                        </svg>
-                      </span>
-                    </div>
-                    <BarcodeTicks
-                      total={22}
-                      filled={Math.max(3, Math.round(((wrongCount + unusedCount) / Math.max(1, totalAvailable)) * 22))}
-                      tone="blue"
-                    />
-                  </button>
-
-                  {/* Card 5: Flagged for Review (~5% = 11 QS) */}
-                  <button
-                    type="button"
-                    className="metricCard metricCardInteractive"
-                    onClick={() => openFilteredQBank({ attemptFilter: 'flagged' })}
-                  >
-                    <div className="metricCardTop">
-                      <div>
-                        <div className="metricValue">
-                          {flaggedCount} <span style={{ fontSize: 15, fontWeight: 500, color: '#7c857f' }}>({flaggedPct}%)</span>
-                        </div>
-                        <div className="metricLabel">Flagged for Review · {notesCount} Notes</div>
-                      </div>
-                      <span className="metricIconCircle amber" aria-hidden="true">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
-                          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                        </svg>
-                      </span>
-                    </div>
-                    <BarcodeTicks
-                      total={22}
-                      filled={Math.min(22, Math.max(2, flaggedCount))}
-                      tone="amber"
-                    />
-                  </button>
-                </div>
-              </div>
+            <div style={{ marginBottom: 20 }}>
+              <StatsBand
+                accuracyPct={correctPct}
+                completedCount={attemptedCount}
+                totalCount={totalAvailable}
+                correctCount={correctCount}
+                wrongCount={wrongCount}
+                streakCount={correctStreak}
+                flaggedCount={flaggedCount}
+                notesCount={notesCount}
+                showCompanionIcons={companionIcons}
+                onClickAccuracy={() => openFilteredQBank({ attemptFilter: 'correct' })}
+                onClickCompleted={() => openFilteredQBank({ attemptFilter: '' })}
+                onClickStreak={() => openFilteredQBank({ attemptFilter: 'correct' })}
+                onClickFlagged={() => openFilteredQBank({ attemptFilter: 'flagged' })}
+              />
             </div>
 
-            {/* Mobile & Tablet Collapsible Analytics Bar (Hidden on Desktop >1100px) */}
-            <div className="mobileDashAccordionToolbar">
-              <span>Detailed Charts &amp; Sub-Topic Breakdowns</span>
-              <button
-                type="button"
-                className="qcardSolveBtn"
-                onClick={() => {
-                  const anyOpen = Object.values(mobileDashAccordions).some(Boolean)
-                  setAllMobileDashAccordions(!anyOpen)
+            {/* ================================================================
+                2. CLINICAL DOMAIN SUMMARY CARDS (Replaces Polygon Graphs & Question Atlas Matrix)
+                A single, clear summary card for each clinical topic, decision target,
+                and landmark trial/guideline in the question bank.
+               ================================================================ */}
+            <div style={{ marginBottom: 20 }}>
+              <VasculitisDomainRadar
+                metrics={sixAxisVasculitisMetrics}
+                targetMetrics={targetPerformanceMetrics}
+                sourceMetrics={sourcePerformanceMetrics}
+                showCompanionIcons={companionIcons}
+                onSelectDomain={(topicName) => {
+                  openCreateTestConfigurator({ topics: [topicName], targets: [], sources: [], initialStep: 4 })
                 }}
-              >
-                {Object.values(mobileDashAccordions).some(Boolean) ? 'Collapse All Sections' : 'Expand All Sections'}
-              </button>
+                onSelectTarget={(targetName) => {
+                  openCreateTestConfigurator({ targets: [targetName], topics: [], sources: [], initialStep: 4 })
+                }}
+                onSelectSource={(sourceName) => {
+                  openCreateTestConfigurator({ sources: [sourceName], targets: [], topics: [], initialStep: 4 })
+                }}
+                onOpenStudyPlan={() => {
+                  setShowStudyPlanBanner((prev) => !prev)
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }}
+                onOpenStudyPlanLogic={() => {
+                  setShowStudyPlanLogicModal((prev) => !prev)
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }}
+              />
             </div>
 
-            {/* Collapsible Accordion 1 on Mobile/Tablet (Always open on Desktop): Subject-wise Performance Radar */}
-            <div className="mobileDashAccordionCard" data-open={mobileDashAccordions.radar}>
-              <button
-                type="button"
-                className="mobileDashAccordionHeader"
-                aria-expanded={mobileDashAccordions.radar}
-                onClick={() => toggleMobileDashAccordion('radar')}
-              >
-                <div className="mobileDashAccordionTitleWrap">
-                  <span className="accordionStepCircle">1</span>
-                  <div>
-                    <div className="accordionTitle">Subject-wise Performance Radar</div>
-                    <div className="mobileDashAccordionSub">
-                      3 Weak Areas (&lt;60%) · 8 Vasculitis Sub-Topics &amp; Landmark Trials
-                    </div>
-                  </div>
+            {/* ================================================================
+                3. CLEAN COLLAPSIBLE 'ANALYTICS' SECTION
+                Houses detailed charts & pool distribution collapsed by default
+                so the primary dashboard remains focused and uncluttered.
+               ================================================================ */}
+            <details className="secondaryAnalyticsDrawer">
+              <summary className="secondaryAnalyticsSummary">
+                <div>
+                  <strong>Analytics · Detailed Performance &amp; Question Pool Breakdown</strong>
+                  <span className="secondaryAnalyticsSub">
+                    8 Decision Targets · 12 Landmark Trials &amp; KDIGO 2024 · {GLOMERULAR_MODULES.length} Glomerular Modules
+                  </span>
                 </div>
-                <span className="accordionChevron">{mobileDashAccordions.radar ? '▴' : '▾'}</span>
-              </button>
+                <span className="secondaryAnalyticsToggleLabel">Expand Analytics ▾</span>
+              </summary>
 
-              <div className="mobileDashAccordionBody">
-                <SubjectWisePerformanceRadar
-                  metrics={radarDimension === 'target' ? targetPerformanceMetrics : sourcePerformanceMetrics}
-                  radarDimension={radarDimension}
-                  onChangeDimension={setRadarDimension}
-                  onSelectSubtopic={(subtopicName) => {
-                    if (radarDimension === 'target') {
-                      openCreateTestConfigurator({ targets: [subtopicName], initialStep: 4 })
-                    } else {
-                      openCreateTestConfigurator({ sources: [subtopicName], initialStep: 4 })
-                    }
-                  }}
-                  onOpenStudyPlan={() => {
-                    setShowStudyPlanBanner((prev) => !prev)
-                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                  }}
-                  onOpenStudyPlanLogic={() => {
-                    setShowStudyPlanLogicModal((prev) => !prev)
-                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Row 3: Functional Vasculitis Subject Bar Chart + Smooth Semicircle Pie Chart */}
-            <div className="chartsRow">
-              {/* Collapsible Accordion 2 on Mobile/Tablet (Left Card on Desktop): Subject Mastery Breakdown Bar Chart */}
-              <div className="mobileDashAccordionCard" data-open={mobileDashAccordions.barChart}>
-                <button
-                  type="button"
-                  className="mobileDashAccordionHeader"
-                  aria-expanded={mobileDashAccordions.barChart}
-                  onClick={() => toggleMobileDashAccordion('barChart')}
-                >
-                  <div className="mobileDashAccordionTitleWrap">
-                    <span className="accordionStepCircle">2</span>
-                    <div>
-                      <div className="accordionTitle">Subject Mastery Breakdown Chart</div>
-                      <div className="mobileDashAccordionSub">
-                        8 Decision Targets · 12 Trials &amp; KDIGO · Clinical Topics
-                      </div>
-                    </div>
-                  </div>
-                  <span className="accordionChevron">{mobileDashAccordions.barChart ? '▴' : '▾'}</span>
-                </button>
-
-                <div className="mobileDashAccordionBody">
+              <div className="secondaryAnalyticsBody">
+                <div className="chartsRow" style={{ marginTop: 16 }}>
                   <section className="dashboardCard" aria-label="ANCA-Vasculitis Subject Progress">
                     <div className="cardHeaderRow">
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -3158,19 +3494,73 @@ function App() {
                             <div
                               key={col.key}
                               className="barCol"
+                              role="button"
+                              tabIndex={0}
                               data-active={isActive}
-                              onMouseEnter={() => setSelectedBarIdx(idx)}
+                              style={{ cursor: 'pointer' }}
+                              onMouseEnter={() => {
+                                setSelectedBarIdx(idx)
+                              }}
                               onClick={() => {
                                 setSelectedBarIdx(idx)
                                 if (chartSplitMode === 'target') {
-                                  openFilteredQBank({ target: col.key })
+                                  openCreateTestConfigurator({
+                                    domain: col.key,
+                                    targets: [col.key],
+                                    topics: [],
+                                    sources: [],
+                                    initialStep: 4,
+                                  })
                                 } else if (chartSplitMode === 'source') {
-                                  openFilteredQBank({ source: col.key })
+                                  openCreateTestConfigurator({
+                                    domain: col.key,
+                                    sources: [col.key],
+                                    targets: [],
+                                    topics: [],
+                                    initialStep: 4,
+                                  })
                                 } else {
-                                  openFilteredQBank({ topic: col.key })
+                                  openCreateTestConfigurator({
+                                    domain: col.key,
+                                    topics: [col.key],
+                                    targets: [],
+                                    sources: [],
+                                    initialStep: 4,
+                                  })
                                 }
                               }}
-                              title={`${col.fullTitle} — ${col.accuracy}% Correct (${col.correct}/${col.total})`}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault()
+                                  setSelectedBarIdx(idx)
+                                  if (chartSplitMode === 'target') {
+                                    openCreateTestConfigurator({
+                                      domain: col.key,
+                                      targets: [col.key],
+                                      topics: [],
+                                      sources: [],
+                                      initialStep: 4,
+                                    })
+                                  } else if (chartSplitMode === 'source') {
+                                    openCreateTestConfigurator({
+                                      domain: col.key,
+                                      sources: [col.key],
+                                      targets: [],
+                                      topics: [],
+                                      initialStep: 4,
+                                    })
+                                  } else {
+                                    openCreateTestConfigurator({
+                                      domain: col.key,
+                                      topics: [col.key],
+                                      targets: [],
+                                      sources: [],
+                                      initialStep: 4,
+                                    })
+                                  }
+                                }
+                              }}
+                              title={`Click to create test on ${col.fullTitle} — ${col.accuracy}% Correct (${col.correct}/${col.total})`}
                             >
                               <div className="barTrackWrap">
                                 <div className="barHatched" style={{ height: `${totalH}px` }}>
@@ -3184,13 +3574,12 @@ function App() {
                       </div>
                     </div>
 
-                    {/* Selected Subject Action Footer */}
                     {activeBar && (
                       <div
                         style={{
-                          marginTop: 14,
+                          marginTop: 12,
                           paddingTop: 12,
-                          borderTop: '1px solid #ecefeb',
+                          borderTop: '1px solid var(--border-inner)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
@@ -3200,54 +3589,47 @@ function App() {
                         }}
                       >
                         <span>
-                          Selected Subject: <strong style={{ color: '#141816' }}>{activeBar.fullTitle}</strong> ·{' '}
+                          Selected Subject: <strong>{activeBar.fullTitle}</strong> ·{' '}
                           {activeBar.total} Available · {activeBar.correct} Correct ({activeBar.accuracy}%) ·{' '}
                           {activeBar.remaining} Wrong/Flagged
                         </span>
-                        <div style={{ display: 'flex', gap: 8 }}>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                           <button
                             type="button"
-                            className="qcardSolveBtn"
+                            className="secondaryPillBtn"
                             onClick={() => {
                               if (chartSplitMode === 'target') {
-                                openCreateTestConfigurator({ targets: [activeBar.key], sources: [], topic: '', initialStep: 4 })
+                                openFilteredQBank({ target: activeBar.key })
                               } else if (chartSplitMode === 'source') {
-                                openCreateTestConfigurator({ sources: [activeBar.key], targets: [], topic: '', initialStep: 4 })
+                                openFilteredQBank({ source: activeBar.key })
                               } else {
-                                openCreateTestConfigurator({ topic: activeBar.key, targets: [], sources: [], initialStep: 4 })
+                                openFilteredQBank({ topic: activeBar.key })
                               }
                             }}
                           >
-                            Create Test on {activeBar.shortLabel} →
+                            Browse in QBank ({activeBar.total})
+                          </button>
+                          <button
+                            type="button"
+                            className="createExamBtn"
+                            style={{ padding: '7px 14px', fontSize: 12.5 }}
+                            onClick={() => {
+                              if (chartSplitMode === 'target') {
+                                openCreateTestConfigurator({ targets: [activeBar.key], topics: [], sources: [], initialStep: 4 })
+                              } else if (chartSplitMode === 'source') {
+                                openCreateTestConfigurator({ sources: [activeBar.key], targets: [], topics: [], initialStep: 4 })
+                              } else {
+                                openCreateTestConfigurator({ topics: [activeBar.key], targets: [], sources: [], initialStep: 4 })
+                              }
+                            }}
+                          >
+                            Create Test on {activeBar.fullTitle} ({activeBar.total} QS) →
                           </button>
                         </div>
                       </div>
                     )}
                   </section>
-                </div>
-              </div>
 
-              {/* Collapsible Accordion 3 on Mobile/Tablet (Right Card on Desktop): Semicircle Pie Chart */}
-              <div className="mobileDashAccordionCard" data-open={mobileDashAccordions.pieChart}>
-                <button
-                  type="button"
-                  className="mobileDashAccordionHeader"
-                  aria-expanded={mobileDashAccordions.pieChart}
-                  onClick={() => toggleMobileDashAccordion('pieChart')}
-                >
-                  <div className="mobileDashAccordionTitleWrap">
-                    <span className="accordionStepCircle">3</span>
-                    <div>
-                      <div className="accordionTitle">Question Pool Semicircle Distribution</div>
-                      <div className="mobileDashAccordionSub">
-                        {gaugeTotal} Questions · Subjects &amp; 85/10/5 Status Breakdown
-                      </div>
-                    </div>
-                  </div>
-                  <span className="accordionChevron">{mobileDashAccordions.pieChart ? '▴' : '▾'}</span>
-                </button>
-
-                <div className="mobileDashAccordionBody">
                   <section className="dashboardCard" aria-label="ANCA-Vasculitis semicircle pie chart">
                     <div className="cardHeaderRow" style={{ marginBottom: 12 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -3267,7 +3649,7 @@ function App() {
                             aria-pressed={semiPieMode === 'status'}
                             onClick={() => setSemiPieMode('status')}
                           >
-                            85/10/5 Status
+                            Answer Status
                           </button>
                         </div>
                       </div>
@@ -3343,162 +3725,7 @@ function App() {
                   </section>
                 </div>
               </div>
-            </div>
-
-            {/* Collapsible Accordion 4 on Mobile/Tablet (Bottom 3 Summary Cards on Desktop) */}
-            <div className="mobileDashAccordionCard" data-open={mobileDashAccordions.summaryCards}>
-              <button
-                type="button"
-                className="mobileDashAccordionHeader"
-                aria-expanded={mobileDashAccordions.summaryCards}
-                onClick={() => toggleMobileDashAccordion('summaryCards')}
-              >
-                <div className="mobileDashAccordionTitleWrap">
-                  <span className="accordionStepCircle">4</span>
-                  <div>
-                    <div className="accordionTitle">Answer Breakdown, Glomerular Topics &amp; Notes</div>
-                    <div className="mobileDashAccordionSub">
-                      85/10/5 Progress · {GLOMERULAR_MODULES.length} Glomerular Diseases · {notesCount} Saved Study Notes
-                    </div>
-                  </div>
-                </div>
-                <span className="accordionChevron">{mobileDashAccordions.summaryCards ? '▴' : '▾'}</span>
-              </button>
-
-              <div className="mobileDashAccordionBody">
-                <div className="bottomGrid3">
-                  {/* Card 1: Score & Answer Breakdown (85% Correct, 10% Wrong, 5% Flagged) */}
-                  <section className="dashboardCard" aria-label="Answer accuracy breakdown">
-                    <div className="cardHeaderRow" style={{ marginBottom: 14 }}>
-                      <h2 className="cardTitle">Answer Breakdown (85 / 10 / 5)</h2>
-                    </div>
-                    <div className="subMetricLine">
-                      <span className="subMetricBig">{correctPct}%</span>
-                      <span className="subMetricMuted">
-                        Correct ({correctCount}) · {wrongPct}% Wrong ({wrongCount}) · {flaggedPct}% Flagged ({flaggedCount})
-                      </span>
-                    </div>
-                    <div
-                      className="segmentedProgressRow"
-                      style={{
-                        gridTemplateColumns: `${Math.max(1, correctCount)}fr ${Math.max(
-                          1,
-                          flaggedCount
-                        )}fr ${Math.max(1, wrongCount)}fr`,
-                      }}
-                      aria-hidden="true"
-                    >
-                      <div className="segBarHatched" />
-                      <div className="segBarAmber" />
-                      <div className="segBarCoral" />
-                    </div>
-                    <div className="subLegendRow">
-                      <span className="legendItem">
-                        <i className="legendSwatch" style={{ background: '#8bc8a5' }} />
-                        <span>
-                          Correct <strong>{correctCount} ({correctPct}%)</strong>
-                        </span>
-                      </span>
-                      <span className="legendItem">
-                        <i className="legendSwatch" style={{ background: '#f7a61c' }} />
-                        <span>
-                          Flagged <strong>{flaggedCount} ({flaggedPct}%)</strong>
-                        </span>
-                      </span>
-                      <span className="legendItem">
-                        <i className="legendSwatch" style={{ background: '#ea582c' }} />
-                        <span>
-                          Incorrect <strong>{wrongCount} ({wrongPct}%)</strong>
-                        </span>
-                      </span>
-                    </div>
-                  </section>
-
-                  {/* Card 2: Glomerular Disease Topics & Trials */}
-                  <section className="dashboardCard" aria-label="Glomerular disease topics and trial sources">
-                    <div className="cardHeaderRow" style={{ marginBottom: 18 }}>
-                      <h2 className="cardTitle">Glomerular Topics</h2>
-                    </div>
-                    <div className="innerSplit2">
-                      <button
-                        type="button"
-                        className="innerStatBox"
-                        onClick={() => setNavTab('Glomerular Topics')}
-                      >
-                        <div>
-                          <div className="innerStatNum">{GLOMERULAR_MODULES.length}</div>
-                          <div className="innerStatLabel">Glomerular Diseases</div>
-                        </div>
-                        <span className="miniSparkBars" aria-hidden="true">
-                          <i style={{ height: '45%' }} />
-                          <i style={{ height: '70%' }} />
-                          <i className="active" style={{ height: '100%' }} />
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="innerStatBox"
-                        onClick={() => setNavTab('Glomerular Topics')}
-                      >
-                        <div>
-                          <div className="innerStatNum">{labels.length}</div>
-                          <div className="innerStatLabel">Trials &amp; Guidelines</div>
-                        </div>
-                        <span className="miniSparkBars" aria-hidden="true">
-                          <i style={{ height: '55%' }} />
-                          <i style={{ height: '40%' }} />
-                          <i className="active" style={{ height: '90%' }} />
-                        </span>
-                      </button>
-                    </div>
-                  </section>
-
-                  {/* Card 3: Study Notes & Weakest Content */}
-                  <section className="dashboardCard" aria-label="Study notes and challenging questions">
-                    <div className="cardHeaderRow" style={{ marginBottom: 18 }}>
-                      <h2 className="cardTitle">Notes &amp; Challenging QS</h2>
-                    </div>
-                    <div className="innerSplit2">
-                      <button
-                        type="button"
-                        className="innerStatBox"
-                        onClick={() => openFilteredQBank({ sortOrder: 'rate-asc' })}
-                      >
-                        <div>
-                          <div className="innerStatNum">{wrongCount}</div>
-                          <div className="innerStatLabel">Lowest Rate QS</div>
-                        </div>
-                        <span className="metricIconCircle coral" style={{ width: 38, height: 38 }} aria-hidden="true">
-                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 9v4M12 17h.01" strokeLinecap="round" />
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                          </svg>
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="innerStatBox"
-                        onClick={() => openFilteredQBank({ attemptFilter: 'notes' })}
-                      >
-                        <div>
-                          <div className="innerStatNum">{notesCount}</div>
-                          <div className="innerStatLabel">Saved Study Notes</div>
-                        </div>
-                        <span className="metricIconCircle purple" style={{ width: 38, height: 38 }} aria-hidden="true">
-                          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14 2 14 8 20 8" />
-                            <line x1="16" y1="13" x2="8" y2="13" />
-                          </svg>
-                        </span>
-                      </button>
-                    </div>
-                  </section>
-                </div>
-              </div>
-            </div>
+            </details>
           </>
         )}
 
@@ -3514,7 +3741,7 @@ function App() {
                 <div className="cardHeaderRow">
                   <div>
                     <h2 className="cardTitle">Create Custom Practice Test</h2>
-                    <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#5a625d' }}>
+                    <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
                       Configure your test step-by-step below. Any previously attempted questions open completely fresh
                       with previous answers hidden so you can genuinely re-attempt them. ({matchingBuilderPool.length}{' '}
                       matching questions available)
@@ -3525,7 +3752,9 @@ function App() {
                       type="button"
                       className="studyPlanBtn"
                       onClick={() => {
+                        setActiveDrillDownDomain(null)
                         setSelectedTargets(adaptiveStudyPlan.weakTargetNames)
+                        syncTagsForTopicsAndTargets(selectedTopics, adaptiveStudyPlan.weakTargetNames)
                         setOpenAccordionStep(4)
                       }}
                       title="Auto-select your 4 weakest vasculitis sub-topics based on accuracy data"
@@ -3543,6 +3772,184 @@ function App() {
                       Start Test ({Math.min(testCount, matchingBuilderPool.length)} Questions) →
                     </button>
                   </div>
+                </div>
+
+                {/* ==========================================================
+                    TOP QUESTION COUNT & BLOCK SIZE BAR (5, 10, 20, 40 + Custom Question Count)
+                    Updates the exam state (`testCount`) directly from anywhere on the page.
+                   ========================================================== */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 12,
+                    padding: '12px 16px',
+                    marginBottom: 14,
+                    borderRadius: 14,
+                    background: 'var(--bg-subtle)',
+                    border: '1px solid var(--border-card)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginRight: 4 }}>
+                      Block Question Count:
+                    </span>
+                    {[5, 10, 20, 40].map((cnt) => (
+                      <button
+                        key={cnt}
+                        type="button"
+                        className="builderChoiceBtn"
+                        style={{ padding: '6px 12px', fontSize: 12.5 }}
+                        aria-pressed={testCount === cnt}
+                        onClick={() => {
+                          setTestCount(cnt)
+                          setCustomTestCountInput(String(cnt))
+                        }}
+                      >
+                        <span>{cnt} Questions</span>
+                      </button>
+                    ))}
+                    <label
+                      htmlFor="custom-question-count-top"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '5px 12px',
+                        borderRadius: 10,
+                        border: '1px solid var(--border-card)',
+                        background: 'var(--bg-card)',
+                        fontSize: 12.5,
+                        fontWeight: 600,
+                        color: 'var(--text-primary)',
+                      }}
+                    >
+                      <span>Custom Question Count</span>
+                      <input
+                        id="custom-question-count-top"
+                        type="number"
+                        min={1}
+                        max={Math.max(1, totalAvailable)}
+                        value={customTestCountInput}
+                        aria-label="Custom Question Count"
+                        placeholder="Enter count"
+                        style={{
+                          width: 72,
+                          padding: '4px 8px',
+                          borderRadius: 6,
+                          border: '1px solid var(--border-card)',
+                          background: 'var(--bg-subtle)',
+                          color: 'var(--text-primary)',
+                          fontWeight: 700,
+                          fontSize: 13,
+                          textAlign: 'center',
+                        }}
+                        onChange={(e) => {
+                          const rawVal = e.target.value
+                          setCustomTestCountInput(rawVal)
+                          const parsed = parseInt(rawVal, 10)
+                          if (!Number.isNaN(parsed) && parsed >= 1) {
+                            setTestCount(Math.min(totalAvailable, parsed))
+                          }
+                        }}
+                        onBlur={() => {
+                          const parsed = parseInt(customTestCountInput, 10)
+                          const valid =
+                            !Number.isNaN(parsed) && parsed >= 1
+                              ? Math.min(totalAvailable, parsed)
+                              : Math.max(1, Math.min(testCount, totalAvailable))
+                          setTestCount(valid)
+                          setCustomTestCountInput(String(valid))
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  <span style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>
+                    Matching Filter Pool: <strong style={{ color: 'var(--text-primary)' }}>{matchingBuilderPool.length}</strong> QS ·{' '}
+                    Exam Size: <strong style={{ color: 'var(--emerald)' }}>{Math.min(testCount, matchingBuilderPool.length)}</strong> QS
+                  </span>
+                </div>
+
+                {/* ==========================================================
+                    QUICK DOMAIN DRILL-DOWN SYNCHRONIZER PILLS
+                    Clicking any domain (e.g., Diagnosis, Dosing & timing, Induction therapy)
+                    synchronizes its corresponding Clinical Topics, Decision Targets, and Clinical Tags.
+                   ========================================================== */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    flexWrap: 'wrap',
+                    marginBottom: 14,
+                  }}
+                >
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginRight: 4 }}>
+                    Quick Domain Filter Sync:
+                  </span>
+                  {[
+                    { key: 'ALL', label: 'All Domains' },
+                    { key: 'Induction therapy', label: 'Induction' },
+                    { key: 'Diagnosis', label: 'Diagnosis' },
+                    { key: 'Dosing & timing', label: 'Dosing' },
+                    { key: 'Maintenance therapy', label: 'Maintenance' },
+                    { key: 'Disease assessment', label: 'Disease Assessment' },
+                    { key: 'Trial outcomes', label: 'Trial Outcomes' },
+                    { key: 'Trial eligibility', label: 'Trial Eligibility' },
+                    { key: 'Safety & monitoring', label: 'Safety & Monitoring' },
+                  ].map((dom) => {
+                    const isAll = dom.key === 'ALL'
+                    const isSelected = isAll
+                      ? selectedTopics.length === 0 &&
+                        selectedTargets.length === 0 &&
+                        selectedTags.length === 0 &&
+                        !activeDrillDownDomain
+                      : activeDrillDownDomain === dom.key ||
+                        selectedTopics.includes(dom.key) ||
+                        selectedTargets.includes(dom.key)
+                    return (
+                      <button
+                        key={dom.key}
+                        type="button"
+                        className="qcardSolveBtn"
+                        aria-pressed={isSelected}
+                        style={{
+                          fontSize: 12,
+                          padding: '4px 10px',
+                          borderColor: isSelected ? 'var(--emerald)' : undefined,
+                          background: isSelected ? 'var(--emerald-soft)' : undefined,
+                          color: isSelected ? 'var(--emerald)' : undefined,
+                          fontWeight: isSelected ? 700 : 500,
+                        }}
+                        onClick={() => {
+                          if (isAll) {
+                            setActiveDrillDownDomain(null)
+                            setSelectedTopics([])
+                            setSelectedTargets([])
+                            setSelectedTags([])
+                            setSelectedSources([])
+                          } else {
+                            setActiveDrillDownDomain(dom.key)
+                            const syncEntry = domainFilterSyncMap[dom.key]
+                            if (syncEntry) {
+                              setSelectedTopics(syncEntry.topics)
+                              setSelectedTargets(syncEntry.targets)
+                              setSelectedTags(syncEntry.tags)
+                            }
+                            setOpenAccordionStep(4)
+                            setOpenSubDrawerTopics(true)
+                            setOpenSubDrawerTargets(true)
+                            setOpenSubDrawerTags(true)
+                          }
+                        }}
+                      >
+                        {dom.label}
+                      </button>
+                    )
+                  })}
                 </div>
 
                 <div className="accordionStack">
@@ -3691,7 +4098,7 @@ function App() {
                               setOpenAccordionStep(3)
                             }}
                           >
-                            <span>Incorrect (Retry 10% Wrong)</span>
+                            <span>Incorrect</span>
                             <span className="builderCountTag">{wrongCount}</span>
                           </button>
                           <button
@@ -3703,7 +4110,7 @@ function App() {
                               setOpenAccordionStep(3)
                             }}
                           >
-                            <span>Flagged for Review (5%)</span>
+                            <span>Flagged for Review</span>
                             <span className="builderCountTag">{flaggedCount}</span>
                           </button>
                           <button
@@ -3787,7 +4194,7 @@ function App() {
 
                   {/* ==========================================================
                       ACCORDION STEP 4: Collapsible Sub-Accordions with Checkboxes
-                      for Specific Decision Targets & Guidelines/Trials
+                      for Clinical Topics, Specific Decision Targets, Clinical Tags & Guidelines/Trials
                      ========================================================== */}
                   <div className="accordionItem" data-open={openAccordionStep === 4}>
                     <button
@@ -3798,13 +4205,21 @@ function App() {
                     >
                       <div className="accordionHeaderLeft">
                         <span className="accordionStepCircle">4</span>
-                        <span className="accordionTitle">Select Specific Sub-Topics &amp; Guidelines</span>
+                        <span className="accordionTitle">Select Specific Sub-Topics, Tags &amp; Guidelines</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span className="accordionSummaryText">
+                          {selectedTopics.length === 0
+                            ? 'All Clinical Topics'
+                            : selectedTopics.join(', ')}{' '}
+                          ·{' '}
                           {selectedTargets.length === 0
                             ? 'All 8 Targets'
-                            : `${selectedTargets.length} Target${selectedTargets.length > 1 ? 's' : ''}`}{' '}
+                            : selectedTargets.join(', ')}{' '}
+                          ·{' '}
+                          {selectedTags.length === 0
+                            ? 'All Clinical Tags'
+                            : `${selectedTags.length} Tag${selectedTags.length > 1 ? 's' : ''}`}{' '}
                           ·{' '}
                           {selectedSources.length === 0
                             ? 'All 12 Trials/Guidelines'
@@ -3816,8 +4231,142 @@ function App() {
 
                     {openAccordionStep === 4 && (
                       <div className="accordionBody">
+                        {/* Active Filter Summary Strip when a specific Topic, Decision Target, Clinical Tag, or Trial is selected */}
+                        {(selectedTopics.length > 0 ||
+                          selectedTargets.length > 0 ||
+                          selectedTags.length > 0 ||
+                          selectedSources.length > 0) && (
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              flexWrap: 'wrap',
+                              gap: 10,
+                              padding: '10px 14px',
+                              marginBottom: 12,
+                              borderRadius: 12,
+                              background: 'var(--emerald-soft)',
+                              border: '1px solid var(--emerald)',
+                              fontSize: 13,
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                              <strong style={{ color: 'var(--emerald)' }}>
+                                {activeDrillDownDomain && domainFilterSyncMap[activeDrillDownDomain]
+                                  ? `Synchronized Domain Filter (${domainFilterSyncMap[activeDrillDownDomain].domainLabel}):`
+                                  : 'Active Test Filter:'}
+                              </strong>
+                              {selectedTopics.map((tp) => (
+                                <span
+                                  key={`tp-${tp}`}
+                                  className="builderCountTag"
+                                  style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', fontWeight: 700 }}
+                                >
+                                  Topic: {tp} ({topicCounts[tp] || 0} QS)
+                                </span>
+                              ))}
+                              {selectedTargets.map((tg) => (
+                                <span
+                                  key={`tg-${tg}`}
+                                  className="builderCountTag"
+                                  style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', fontWeight: 700 }}
+                                >
+                                  Target: {tg} ({targetCounts[tg] || 0} QS)
+                                </span>
+                              ))}
+                              {selectedTags.map((tagName) => (
+                                <span
+                                  key={`tag-${tagName}`}
+                                  className="builderCountTag"
+                                  style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', fontWeight: 600 }}
+                                >
+                                  Tag: #{tagName} ({tagCounts[tagName] || 0} QS)
+                                </span>
+                              ))}
+                              {selectedSources.map((sr) => (
+                                <span
+                                  key={`sr-${sr}`}
+                                  className="builderCountTag"
+                                  style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', fontWeight: 700 }}
+                                >
+                                  Source: {sr} ({sourceCounts[sr] || 0} QS)
+                                </span>
+                              ))}
+                            </div>
+                            <button
+                              type="button"
+                              className="qcardSolveBtn"
+                              style={{ fontSize: 11.5, padding: '4px 10px' }}
+                              onClick={() => {
+                                setActiveDrillDownDomain(null)
+                                setSelectedTopics([])
+                                setSelectedTargets([])
+                                setSelectedTags([])
+                                setSelectedSources([])
+                              }}
+                            >
+                              Clear All Selections
+                            </button>
+                          </div>
+                        )}
+
                         <div className="subAccordionGrid">
-                          {/* Sub-Accordion A: Decision Targets */}
+                          {/* Sub-Accordion A: Clinical Topics (Induction therapy, Diagnosis, Dosing & timing, Maintenance, etc.) */}
+                          <div className="subAccordionBox">
+                            <button
+                              type="button"
+                              className="subAccordionToggle"
+                              aria-expanded={openSubDrawerTopics}
+                              onClick={() => setOpenSubDrawerTopics((o) => !o)}
+                            >
+                              <span>
+                                Clinical Topics ({selectedTopics.length === 0 ? 'All Selected' : `${selectedTopics.length} Selected`})
+                              </span>
+                              <span>{openSubDrawerTopics ? '▴' : '▾'}</span>
+                            </button>
+
+                            {openSubDrawerTopics && (
+                              <div className="subAccordionContent">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                  <button
+                                    type="button"
+                                    className="qcardSolveBtn"
+                                    style={{ fontSize: 11.5, padding: '3px 9px' }}
+                                    onClick={() => setSelectedTopics([])}
+                                  >
+                                    Include All Topics ({totalAvailable})
+                                  </button>
+                                </div>
+
+                                {sixAxisVasculitisMetrics.map((m) => {
+                                  const isChecked = selectedTopics.includes(m.id)
+                                  return (
+                                    <label
+                                      key={m.id}
+                                      className="checkboxOptionRow"
+                                      data-checked={isChecked}
+                                      style={{ margin: 0 }}
+                                    >
+                                      <span className="checkboxLeft">
+                                        <input
+                                          type="checkbox"
+                                          checked={isChecked}
+                                          onChange={() => toggleTopicSelection(m.id)}
+                                        />
+                                        <span>{m.label}</span>
+                                      </span>
+                                      <span className="builderCountTag">
+                                        {m.accuracy}% · {m.total} QS
+                                      </span>
+                                    </label>
+                                  )
+                                })}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Sub-Accordion B: Decision Targets */}
                           <div className="subAccordionBox">
                             <button
                               type="button"
@@ -3881,7 +4430,82 @@ function App() {
                             )}
                           </div>
 
-                          {/* Sub-Accordion B: Guidelines & Landmark Trials */}
+                          {/* Sub-Accordion C: Clinical Tags (Synchronized from Analytics Drill-Down) */}
+                          <div className="subAccordionBox">
+                            <button
+                              type="button"
+                              className="subAccordionToggle"
+                              aria-expanded={openSubDrawerTags}
+                              onClick={() => setOpenSubDrawerTags((o) => !o)}
+                            >
+                              <span>
+                                Clinical Tags ({selectedTags.length === 0 ? `All ${allTags.length} Selected` : `${selectedTags.length} Selected`})
+                              </span>
+                              <span>{openSubDrawerTags ? '▴' : '▾'}</span>
+                            </button>
+
+                            {openSubDrawerTags && (
+                              <div className="subAccordionContent">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
+                                  <button
+                                    type="button"
+                                    className="qcardSolveBtn"
+                                    style={{ fontSize: 11.5, padding: '3px 9px' }}
+                                    onClick={() => {
+                                      setActiveDrillDownDomain(null)
+                                      setSelectedTags([])
+                                    }}
+                                  >
+                                    Include All Tags ({totalAvailable})
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="qcardSolveBtn"
+                                    style={{ fontSize: 11.5, padding: '3px 9px' }}
+                                    onClick={() => {
+                                      setActiveDrillDownDomain('Diagnosis')
+                                    }}
+                                  >
+                                    Diagnosis Tags
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="qcardSolveBtn"
+                                    style={{ fontSize: 11.5, padding: '3px 9px' }}
+                                    onClick={() => {
+                                      setActiveDrillDownDomain('Dosing & timing')
+                                    }}
+                                  >
+                                    Dosing Tags
+                                  </button>
+                                </div>
+
+                                {allTags.map((tg) => {
+                                  const isChecked = selectedTags.includes(tg)
+                                  return (
+                                    <label
+                                      key={tg}
+                                      className="checkboxOptionRow"
+                                      data-checked={isChecked}
+                                      style={{ margin: 0 }}
+                                    >
+                                      <span className="checkboxLeft">
+                                        <input
+                                          type="checkbox"
+                                          checked={isChecked}
+                                          onChange={() => toggleTagSelection(tg)}
+                                        />
+                                        <span>{tg}</span>
+                                      </span>
+                                      <span className="builderCountTag">{tagCounts[tg] || 0} QS</span>
+                                    </label>
+                                  )
+                                })}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Sub-Accordion D: Guidelines & Landmark Trials */}
                           <div className="subAccordionBox">
                             <button
                               type="button"
@@ -3942,25 +4566,121 @@ function App() {
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14 }}>
-                          <span style={{ fontSize: 13, color: '#5a625d' }}>
-                            Matching Pool: <strong style={{ color: '#141816' }}>{matchingBuilderPool.length}</strong> questions
-                          </span>
-                          <button
-                            type="button"
-                            className="createExamBtn"
-                            style={{ padding: '8px 16px', fontSize: 13 }}
-                            onClick={() => setOpenAccordionStep(5)}
-                          >
-                            Continue to Block Size &amp; Launch →
-                          </button>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: 12,
+                            marginTop: 14,
+                            paddingTop: 12,
+                            borderTop: '1px solid var(--border-inner)',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: 13, color: 'var(--text-secondary)', marginRight: 4 }}>
+                              Matching Pool: <strong style={{ color: 'var(--text-primary)' }}>{matchingBuilderPool.length}</strong> QS · Block Size:
+                            </span>
+                            {[5, 10, 20, 40].map((cnt) => (
+                              <button
+                                key={cnt}
+                                type="button"
+                                className="builderChoiceBtn"
+                                style={{ padding: '5px 10px', fontSize: 12 }}
+                                aria-pressed={testCount === cnt}
+                                onClick={() => {
+                                  setTestCount(cnt)
+                                  setCustomTestCountInput(String(cnt))
+                                }}
+                              >
+                                <span>{cnt} QS</span>
+                              </button>
+                            ))}
+                            <label
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                padding: '4px 10px',
+                                borderRadius: 10,
+                                border: '1px solid var(--border-card)',
+                                background: 'var(--bg-subtle)',
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: 'var(--text-primary)',
+                              }}
+                            >
+                              <span>Custom Question Count</span>
+                              <input
+                                type="number"
+                                min={1}
+                                max={Math.max(1, totalAvailable)}
+                                value={customTestCountInput}
+                                aria-label="Custom Question Count"
+                                placeholder="#"
+                                style={{
+                                  width: 64,
+                                  padding: '3px 6px',
+                                  borderRadius: 6,
+                                  border: '1px solid var(--border-card)',
+                                  background: 'var(--bg-card)',
+                                  color: 'var(--text-primary)',
+                                  fontWeight: 700,
+                                  fontSize: 12.5,
+                                  textAlign: 'center',
+                                }}
+                                onChange={(e) => {
+                                  const rawVal = e.target.value
+                                  setCustomTestCountInput(rawVal)
+                                  const parsed = parseInt(rawVal, 10)
+                                  if (!Number.isNaN(parsed) && parsed >= 1) {
+                                    setTestCount(Math.min(totalAvailable, parsed))
+                                  }
+                                }}
+                                onBlur={() => {
+                                  const parsed = parseInt(customTestCountInput, 10)
+                                  const valid =
+                                    !Number.isNaN(parsed) && parsed >= 1
+                                      ? Math.min(totalAvailable, parsed)
+                                      : Math.max(1, Math.min(testCount, totalAvailable))
+                                  setTestCount(valid)
+                                  setCustomTestCountInput(String(valid))
+                                }}
+                              />
+                            </label>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                            <button
+                              type="button"
+                              className="secondaryPillBtn"
+                              style={{ padding: '8px 14px', fontSize: 12.5 }}
+                              onClick={() => setOpenAccordionStep(5)}
+                            >
+                              Step 5: Block Size →
+                            </button>
+                            <button
+                              type="button"
+                              className="createExamBtn"
+                              disabled={matchingBuilderPool.length === 0}
+                              style={{
+                                padding: '8px 16px',
+                                fontSize: 13,
+                                opacity: matchingBuilderPool.length === 0 ? 0.5 : 1,
+                              }}
+                              onClick={handleStartConfiguredTest}
+                            >
+                              Start Test ({Math.min(testCount, matchingBuilderPool.length)} Questions) →
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
                   </div>
 
                   {/* ==========================================================
-                      ACCORDION STEP 5: Number of Questions & Launch Block
+                      ACCORDION STEP 5: Number of Questions (Presets + Custom Input) & Launch Block
                      ========================================================== */}
                   <div className="accordionItem" data-open={openAccordionStep === 5}>
                     <button
@@ -3993,18 +4713,77 @@ function App() {
                             marginTop: 8,
                           }}
                         >
-                          <div className="builderPillsRow" style={{ marginBottom: 0 }}>
+                          <div className="builderPillsRow" style={{ marginBottom: 0, alignItems: 'center' }}>
                             {[5, 10, 20, 40].map((cnt) => (
                               <button
                                 key={cnt}
                                 type="button"
                                 className="builderChoiceBtn"
                                 aria-pressed={testCount === cnt}
-                                onClick={() => setTestCount(cnt)}
+                                onClick={() => {
+                                  setTestCount(cnt)
+                                  setCustomTestCountInput(String(cnt))
+                                }}
                               >
                                 <span>{cnt} Questions</span>
                               </button>
                             ))}
+
+                            <label
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 8,
+                                padding: '6px 12px',
+                                borderRadius: 12,
+                                border: '1px solid var(--border-card)',
+                                background: 'var(--bg-subtle)',
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: 'var(--text-primary)',
+                              }}
+                            >
+                              <span>Custom Question Count</span>
+                              <input
+                                type="number"
+                                min={1}
+                                max={Math.max(1, totalAvailable)}
+                                value={customTestCountInput}
+                                aria-label="Custom Question Count"
+                                placeholder="Custom #"
+                                style={{
+                                  width: 72,
+                                  padding: '4px 8px',
+                                  borderRadius: 8,
+                                  border: '1px solid var(--border-card)',
+                                  background: 'var(--bg-card)',
+                                  color: 'var(--text-primary)',
+                                  fontWeight: 700,
+                                  fontSize: 13.5,
+                                  textAlign: 'center',
+                                }}
+                                onChange={(e) => {
+                                  const rawVal = e.target.value
+                                  setCustomTestCountInput(rawVal)
+                                  const parsed = parseInt(rawVal, 10)
+                                  if (!Number.isNaN(parsed) && parsed >= 1) {
+                                    setTestCount(Math.min(totalAvailable, parsed))
+                                  }
+                                }}
+                                onBlur={() => {
+                                  const parsed = parseInt(customTestCountInput, 10)
+                                  const valid =
+                                    !Number.isNaN(parsed) && parsed >= 1
+                                      ? Math.min(totalAvailable, parsed)
+                                      : Math.max(1, Math.min(testCount, totalAvailable))
+                                  setTestCount(valid)
+                                  setCustomTestCountInput(String(valid))
+                                }}
+                              />
+                              <span style={{ fontSize: 11.5, color: 'var(--text-secondary)', fontWeight: 500 }}>
+                                QS (max {Math.max(1, matchingBuilderPool.length)})
+                              </span>
+                            </label>
                           </div>
 
                           <button
@@ -4068,15 +4847,6 @@ function App() {
                             </div>
 
                             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                              <button
-                                type="button"
-                                className="companionTogglePill"
-                                aria-pressed={companionIcons}
-                                title="Toggle pixel nephrology companion icons on or off"
-                                onClick={() => setCompanionIcons((prev) => !prev)}
-                              >
-                                <span>Companion Icons: {companionIcons ? 'On' : 'Off'}</span>
-                              </button>
 
                               <button
                                 type="button"
@@ -4353,10 +5123,17 @@ function App() {
                             <div className="cardHeaderRow" style={{ marginBottom: 14 }}>
                               <div className="completionSummaryTitleGroup">
                                 {companionIcons && (
-                                  <div className="completionSummaryMascotWrap">
+                                  <div
+                                    className="completionSummaryMascotWrap"
+                                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+                                  >
                                     <PixelKidneyMascot
                                       size={48}
                                       mood={blockAccuracyPct >= 70 ? 'trophy' : 'idle'}
+                                    />
+                                    <PixelKidneyPair
+                                      size={40}
+                                      masteryPercent={blockAccuracyPct}
                                     />
                                   </div>
                                 )}
@@ -4648,7 +5425,7 @@ function App() {
               <div className="cardHeaderRow" style={{ marginBottom: 8 }}>
                 <div>
                   <h2 className="cardTitle">Glomerular Disease Curriculum &amp; Topic Breakdown</h2>
-                  <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#5a625d' }}>
+                  <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
                     Select any glomerular disease below to inspect its decision targets, KDIGO guidelines, and clinical
                     trial breakdowns, or author new questions directly into that disease module.
                   </p>
@@ -4680,25 +5457,25 @@ function App() {
                             fontWeight: 700,
                             padding: '2px 8px',
                             borderRadius: 999,
-                            background: mod.active ? '#e6f7ef' : '#f0ebff',
-                            color: mod.active ? '#0e6f40' : '#5b32d6',
+                            background: mod.active ? 'var(--emerald-soft)' : 'var(--purple-soft)',
+                            color: mod.active ? 'var(--emerald)' : 'var(--purple)',
                           }}
                         >
                           {mod.active ? `${authoredForDisease} QS Active` : authoredForDisease > 0 ? `${authoredForDisease} QS Authored` : 'Curriculum Ready'}
                         </span>
                         {mod.active && (
-                          <span style={{ fontSize: 12, fontWeight: 700, color: '#19b368' }}>{correctPct}% Acc</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--emerald)' }}>{correctPct}% Acc</span>
                         )}
                       </div>
 
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: 15, color: '#141816' }}>{mod.id}</div>
-                        <div style={{ fontSize: 12, color: '#5a625d', marginTop: 3, lineHeight: 1.4 }}>
+                        <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{mod.id}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 3, lineHeight: 1.4 }}>
                           {mod.description}
                         </div>
                       </div>
 
-                      <div style={{ fontSize: 11.5, color: '#7c857f', fontWeight: 600 }}>
+                      <div style={{ fontSize: 11.5, color: 'var(--text-muted)', fontWeight: 600 }}>
                         {mod.plannedTargets.length} Decision Targets · {mod.plannedSources.length} Guidelines/Trials
                       </div>
                     </button>
@@ -4728,7 +5505,7 @@ function App() {
                   <div className="cardHeaderRow">
                     <div>
                       <h2 className="cardTitle">ANCA-Associated Vasculitis · 8 Clinical Decision Targets</h2>
-                      <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#5a625d' }}>
+                      <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
                         Questions split across the 8 clinical decision and interpretation target folders in the repository.
                       </p>
                     </div>
@@ -4747,7 +5524,7 @@ function App() {
                         <div key={t} className="packageCard">
                           <div className="metricCardTop" style={{ width: '100%' }}>
                             <div>
-                              <div style={{ fontSize: 17, fontWeight: 600, color: '#141816' }}>{t}</div>
+                              <div style={{ fontSize: 17, fontWeight: 600, color: 'var(--text-primary)' }}>{t}</div>
                               <div className="metricLabel">
                                 {acc >= 80 ? 'Strong Area' : acc >= 60 ? 'Moderate Mastery' : 'Weak Area · Priority Review'}
                               </div>
@@ -4759,16 +5536,16 @@ function App() {
                             </span>
                           </div>
 
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, color: '#5a625d' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, color: 'var(--text-secondary)' }}>
                             <span>
-                              <strong style={{ color: '#141816' }}>{pool.length}</strong> QS ·{' '}
-                              <strong style={{ color: '#0e6f40' }}>{corr}</strong> Right ·{' '}
-                              <strong style={{ color: '#ea582c' }}>{wrong}</strong> Wrong ·{' '}
-                              <strong style={{ color: '#b46909' }}>{flag}</strong> Flag
+                              <strong style={{ color: 'var(--text-primary)' }}>{pool.length}</strong> QS ·{' '}
+                              <strong style={{ color: 'var(--emerald)' }}>{corr}</strong> Right ·{' '}
+                              <strong style={{ color: 'var(--coral)' }}>{wrong}</strong> Wrong ·{' '}
+                              <strong style={{ color: 'var(--amber)' }}>{flag}</strong> Flag
                             </span>
                             <span
                               style={{
-                                color: acc >= 80 ? '#19b368' : acc >= 60 ? '#d9820b' : '#ea582c',
+                                color: acc >= 80 ? 'var(--emerald)' : acc >= 60 ? 'var(--amber)' : 'var(--coral)',
                                 fontWeight: 700,
                               }}
                             >
@@ -4810,7 +5587,7 @@ function App() {
                   <div className="cardHeaderRow">
                     <div>
                       <h2 className="cardTitle">ANCA-Associated Vasculitis · Guidelines &amp; Landmark Trials</h2>
-                      <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#5a625d' }}>
+                      <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
                         Questions organized by KDIGO 2024 guideline recommendations and landmark vasculitis trials.
                       </p>
                     </div>
@@ -4828,7 +5605,7 @@ function App() {
                         <div key={s} className="packageCard">
                           <div className="metricCardTop" style={{ width: '100%' }}>
                             <div>
-                              <div style={{ fontSize: 17, fontWeight: 600, color: '#141816' }}>{s}</div>
+                              <div style={{ fontSize: 17, fontWeight: 600, color: 'var(--text-primary)' }}>{s}</div>
                               <div className="metricLabel">
                                 {/^KDIGO/i.test(s) ? 'Clinical Practice Guideline' : 'Randomized Clinical Trial'}
                               </div>
@@ -4841,13 +5618,13 @@ function App() {
                             </span>
                           </div>
 
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, color: '#5a625d' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, color: 'var(--text-secondary)' }}>
                             <span>
-                              <strong style={{ color: '#141816' }}>{pool.length}</strong> Available ·{' '}
-                              <strong style={{ color: '#0e6f40' }}>{corr}</strong> Correct ·{' '}
-                              <strong style={{ color: '#ea582c' }}>{wrong}</strong> Wrong
+                              <strong style={{ color: 'var(--text-primary)' }}>{pool.length}</strong> Available ·{' '}
+                              <strong style={{ color: 'var(--emerald)' }}>{corr}</strong> Correct ·{' '}
+                              <strong style={{ color: 'var(--coral)' }}>{wrong}</strong> Wrong
                             </span>
-                            <span style={{ color: '#19b368', fontWeight: 700 }}>{acc}%</span>
+                            <span style={{ color: 'var(--emerald)', fontWeight: 700 }}>{acc}%</span>
                           </div>
 
                           <div style={{ display: 'flex', gap: 8 }}>
@@ -4887,7 +5664,7 @@ function App() {
                           padding: '3px 10px',
                           borderRadius: 999,
                           background: 'var(--emerald-soft)',
-                          color: '#0e6f40',
+                          color: 'var(--emerald)',
                         }}
                       >
                         {rows.filter((r) => activeGlomerularModule.plannedSources.includes(r.source)).length} Active ANCA Questions
@@ -4989,13 +5766,6 @@ function App() {
                 </p>
               </div>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  className="secondaryPillBtn"
-                  onClick={handleRestoreDemoBaseline}
-                >
-                  Restore 85% / 10% / 5% Stats
-                </button>
                 <button
                   type="button"
                   className="secondaryPillBtn"
@@ -5456,11 +6226,11 @@ function App() {
                   <span>{edit.topic}</span>
                 </div>
 
-                <p style={{ margin: '0 0 12px', fontSize: 13.5, color: '#45544c', fontWeight: 500 }}>
+                <p style={{ margin: '0 0 12px', fontSize: 13.5, color: 'var(--text-secondary)', fontWeight: 500 }}>
                   {edit.title}
                 </p>
 
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#5a625d', marginBottom: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>
                   Quick Clinical Note Templates:
                 </div>
                 <div className="notesQuickPrompts">
@@ -5499,7 +6269,7 @@ function App() {
                 </label>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
-                  <span style={{ fontSize: 12.5, color: noteSaveFeedback ? '#0e6f40' : '#5a625d', fontWeight: noteSaveFeedback ? 600 : 400 }}>
+                  <span style={{ fontSize: 12.5, color: noteSaveFeedback ? 'var(--emerald)' : 'var(--text-secondary)', fontWeight: noteSaveFeedback ? 600 : 400 }}>
                     {noteSaveFeedback ||
                       (notes[edit.id]?.trim()
                         ? `Saved to local state (${notes[edit.id].trim().length} characters) · Note icon displayed on card`
@@ -5664,6 +6434,66 @@ function App() {
           </form>
         </dialog>
       )}
+
+      {/* ======================================================================
+          21st.dev COMMAND MENU (⌘K / Ctrl+K)
+         ====================================================================== */}
+      <CommandMenuModal
+        open={isCommandMenuOpen}
+        onClose={() => setIsCommandMenuOpen(false)}
+        questions={rows}
+        attempts={attempts}
+        flaggedIds={flaggedIds}
+        targets={allTargets}
+        sources={labels}
+        showCompanionIcons={companionIcons}
+        onSelectQuestion={(q) => {
+          if (isInsideExamBlock && activeExamIds && activeExamIds.includes(q.id)) {
+            setActiveExamIndex(activeExamIds.indexOf(q.id))
+          } else {
+            openQuestion(q as Q, 'Read')
+          }
+        }}
+        onApplyFilter={(opts) => {
+          if (opts.search !== undefined) F(opts.search)
+          openFilteredQBank({
+            attemptFilter: opts.attemptFilter,
+            target: opts.target,
+            source: opts.source,
+          })
+        }}
+        onOpenMasteryDrawer={() => setIsMasteryDrawerOpen(true)}
+        onLaunchWeakAreaBlock={handleLaunchStudyPlanBlock}
+        onToggleTheme={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+      />
+
+      {/* ======================================================================
+          21st.dev EDGE-ANCHORED SLIDE-OVER MASTERY & ATLAS MAP DRAWER (M)
+         ====================================================================== */}
+      <MasteryAtlasDrawer
+        open={isMasteryDrawerOpen}
+        onClose={() => setIsMasteryDrawerOpen(false)}
+        questions={rows}
+        attempts={attempts}
+        flaggedIds={flaggedIds}
+        notesCount={notesCount}
+        streakCount={correctStreak}
+        showCompanionIcons={companionIcons}
+        activeQuestionId={activeExamQuestion?.id ?? edit?.id ?? null}
+        onSelectQuestion={(q) => {
+          if (isInsideExamBlock && activeExamIds && activeExamIds.includes(q.id)) {
+            setActiveExamIndex(activeExamIds.indexOf(q.id))
+          } else {
+            openQuestion(q as Q, 'Read')
+          }
+        }}
+        onFilterByStatus={(statusVal) => {
+          openFilteredQBank({ attemptFilter: statusVal })
+        }}
+        onSelectDomain={(topicName) => {
+          openCreateTestConfigurator({ topics: [topicName], targets: [], sources: [], initialStep: 4 })
+        }}
+      />
     </div>
   )
 }
