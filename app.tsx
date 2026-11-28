@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { SearchToolbar } from './SearchToolbar'
 import { questionFields, migrateAnswerOrder } from './fields'
 import { seed, sources, topics } from './seed'
+import { PixelKidneyMascot, PixelFiltrateDrop, PixelBiopsySlide } from './PixelNephrologySprites'
 
 type Q = typeof seed[number] & {
   disease?: string
@@ -36,90 +37,60 @@ const VASCULITIS_SOURCES = [
   'MAINRITSAN',
 ]
 
-// Multi-Disease Glomerular Curriculum Architecture:
-// ANCA-Associated Vasculitis has the 228 active questions; the other 5 glomerular diseases have their
-// sub-topic & trial architecture ready so questions can be authored and broken down under them.
+// ANCA-Associated Vasculitis Clinical Domains (KDIGO 2024 + 11 Landmark Trials)
+// Preserves 100% ANCA-associated vasculitis focus without non-ANCA placeholders
 const GLOMERULAR_MODULES = [
   {
     id: 'ANCA-Associated Vasculitis',
-    shortName: 'ANCA Vasculitis',
+    shortName: 'All ANCA Vasculitis',
     active: true,
-    description: 'KDIGO 2024 guideline & 11 landmark ANCA-associated vasculitis clinical trials',
+    description: 'Complete 228-question library spanning KDIGO 2024 guideline recommendations and 11 landmark ANCA vasculitis clinical trials',
     plannedTargets: VASCULITIS_TARGETS,
     plannedSources: VASCULITIS_SOURCES,
   },
   {
-    id: 'IgA Nephropathy',
-    shortName: 'IgA Nephropathy',
-    active: false,
-    description: 'MEST-C scoring, supportive care, targeted-release budesonide, sparsentan & systemic corticosteroids',
+    id: 'KDIGO 2024 ANCA Guideline',
+    shortName: 'KDIGO 2024 Guideline',
+    active: true,
+    description: 'Diagnostic workup, kidney biopsy indications, avacopan C5aR inhibition, glucocorticoid taper, and plasma exchange criteria',
     plannedTargets: [
-      'Treatment selection',
-      'Dosing & timing',
-      'Evidence interpretation',
-      'Disease assessment (MEST-C & proteinuria)',
       'Diagnostic reasoning',
-      'Safety & monitoring',
-    ],
-    plannedSources: ['KDIGO IgAN Guideline', 'TESTING', 'NefIgArd', 'PROTECT', 'STOP-IgAN'],
-  },
-  {
-    id: 'Lupus Nephritis',
-    shortName: 'Lupus Nephritis',
-    active: false,
-    description: 'ISN/RPS Class I–VI biopsy management, triple-therapy induction, belimumab, voclosporin & maintenance',
-    plannedTargets: [
-      'Treatment selection (Class III/IV vs V)',
+      'Treatment selection',
       'Dosing & timing',
-      'Evidence interpretation',
-      'Endpoint definitions (Complete renal response)',
-      'Diagnostic reasoning & biopsy class',
+      'Disease assessment',
       'Safety & monitoring',
     ],
-    plannedSources: ['KDIGO 2024 Lupus Nephritis', 'BLISS-LN', 'AURORA-1', 'ALMS', 'Euro-Lupus'],
+    plannedSources: ['KDIGO 2024'],
   },
   {
-    id: 'Membranous Nephropathy',
-    shortName: 'Membranous (MN)',
-    active: false,
-    description: 'PLA2R/THSD7A serology-guided risk stratification, rituximab, calcineurin inhibitors & cyclical alkylating regimens',
+    id: 'Induction Therapy Trials',
+    shortName: 'Induction Trials',
+    active: true,
+    description: 'Rituximab vs cyclophosphamide, reduced-dose steroid regimens, mycophenolate mofetil, and plasma exchange in severe AAV',
     plannedTargets: [
-      'Risk stratification & PLA2R monitoring',
+      'Treatment selection',
+      'Evidence interpretation',
+      'Endpoint definitions',
+      'Trial applicability',
+      'Dosing & timing',
+      'Safety & monitoring',
+    ],
+    plannedSources: ['RAVE', 'PEXIVAS', 'RITUXVAS', 'CYCLOPS', 'MYCYC', 'LoVAS', 'NORAM'],
+  },
+  {
+    id: 'Maintenance & Relapse Trials',
+    shortName: 'Maintenance Trials',
+    active: true,
+    description: 'Remission maintenance with rituximab vs azathioprine, methotrexate, or mycophenolate and relapse prevention strategies',
+    plannedTargets: [
       'Treatment selection',
       'Dosing & timing',
       'Evidence interpretation',
-      'Diagnostic reasoning (Primary vs Secondary MN)',
+      'Endpoint definitions',
+      'Disease assessment',
       'Safety & monitoring',
     ],
-    plannedSources: ['KDIGO MN Guideline', 'MENTOR', 'GEMRITUX', 'STARMEN', 'RI-CYCLO'],
-  },
-  {
-    id: 'Minimal Change Disease (MCD)',
-    shortName: 'Minimal Change (MCD)',
-    active: false,
-    description: 'Adult & pediatric podocytopathy induction, frequent relapsers, steroid-dependent MCD & rituximab',
-    plannedTargets: [
-      'First-line glucocorticoid therapy',
-      'Frequently relapsing / steroid-dependent MCD',
-      'Dosing & timing',
-      'Diagnostic reasoning (MCD vs FSGS)',
-      'Safety & monitoring',
-    ],
-    plannedSources: ['KDIGO MCD Guideline', 'Prednisone Induction Trials', 'Rituximab in FRNS/SDNS', 'CNI Sparing Protocols'],
-  },
-  {
-    id: 'Infection-Related GN (IRGN)',
-    shortName: 'IRGN',
-    active: false,
-    description: 'Post-streptococcal GN, staphylococcal IgA-dominant IRGN, endocarditis/shunt nephritis & C3G differentiation',
-    plannedTargets: [
-      'Antimicrobial & supportive management',
-      'Diagnostic reasoning (IRGN vs C3 glomerulopathy)',
-      'Biopsy & complement interpretation',
-      'Role & risks of immunosuppression',
-      'Safety & monitoring',
-    ],
-    plannedSources: ['KDIGO IRGN Guideline', 'IgA-Dominant Staphylococcal IRGN', 'Endocarditis-Associated GN Cohorts'],
+    plannedSources: ['MAINRITSAN', 'IMPROVE', 'WEGENT', 'CYCAZAREM'],
   },
 ]
 
@@ -775,7 +746,10 @@ function Reader({
   hasNote,
   examMode = 'Tutor',
   isReviewMode = false,
+  showCompanionIcons = true,
   questionNumberLabel,
+  peerAccuracyRate,
+  elapsedSeconds,
   onOpenNoteModal,
   onToggleFlag,
   onPickChoice,
@@ -786,83 +760,83 @@ function Reader({
   hasNote?: boolean
   examMode?: 'Tutor' | 'Timed'
   isReviewMode?: boolean
+  showCompanionIcons?: boolean
   questionNumberLabel?: string
+  peerAccuracyRate?: number
+  elapsedSeconds?: number
   onOpenNoteModal?: () => void
   onToggleFlag?: (qId: number) => void
   onPickChoice?: (qId: number, letter: string, isCorrect: boolean) => void
 }) {
   const [picked, setPicked] = useState(savedChoice || '')
-  const [open, setOpen] = useState(Boolean(isReviewMode || (examMode === 'Tutor' && savedChoice)))
+  const [showMetaFooter, setShowMetaFooter] = useState(false)
+
   const fields = questionFields(question.full)
 
-  // Always sync with savedChoice for the current block/session (never leaks historical attempts into a new block!)
+  // Sync with savedChoice for the current block/session
   useEffect(() => {
     setPicked(savedChoice || '')
-    setOpen(Boolean(isReviewMode || (examMode === 'Tutor' && savedChoice)))
   }, [question.id, savedChoice, examMode, isReviewMode])
+
+  const answer = fields.length ? fields[6].value.trim().replace(/^Correct Answer:\s*/i, '') : ''
+  const key = answer.match(/^(?:Correct Answer:\s*)?([A-E])(?:[.)\s]|$)/i)?.[1]?.toUpperCase() || 'A'
+  const explanationText = fields.length ? fields[7].value.trim() : ''
+
+  const isTimedActive = examMode === 'Timed' && !isReviewMode
+  const showResultAndExplanation = isReviewMode || (examMode === 'Tutor' && Boolean(picked))
+  const isChoiceLocked = isReviewMode || (examMode === 'Tutor' && Boolean(picked))
+
+  // Keyboard shortcuts: 1-5 or A-E to answer when question is active and unlocked
+  useEffect(() => {
+    if (!fields.length || isChoiceLocked) return
+    function handleKeyDown(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement | null)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target as HTMLElement | null)?.isContentEditable) {
+        return
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      const upper = e.key.toUpperCase()
+      let chosenLetter = ''
+      if (['A', 'B', 'C', 'D', 'E'].includes(upper)) {
+        chosenLetter = upper
+      } else if (['1', '2', '3', '4', '5'].includes(upper)) {
+        chosenLetter = 'ABCDE'[parseInt(upper, 10) - 1] || ''
+      }
+      if (chosenLetter) {
+        e.preventDefault()
+        setPicked(chosenLetter)
+        if (onPickChoice) {
+          onPickChoice(question.id, chosenLetter, chosenLetter === key)
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [fields.length, isChoiceLocked, question.id, key, onPickChoice])
 
   if (!fields.length) {
     return (
-      <article className="reader">
+      <article className="reader animateQuestionSlide">
         <p>{question.full}</p>
       </article>
     )
   }
 
-  const answer = fields[6].value.trim().replace(/^Correct Answer:\s*/i, '')
-  const key = answer.match(/^(?:Correct Answer:\s*)?([A-E])(?:[.)\s]|$)/i)?.[1]?.toUpperCase()
-
-  // Determine whether answers & explanations are visible and whether answer choices are locked:
-  // - Active Timed Mode (examMode === 'Timed' && !isReviewMode): NEVER reveal correct answer or explanation; wait for Next Question click.
-  // - Active Tutor Mode (examMode === 'Tutor' && !isReviewMode): Reveal correct answer & explanation as soon as an option is picked, LOCK the choice so a wrong answer cannot be changed to the correct option, and wait for Next Question click.
-  // - End-of-Block Review Mode (isReviewMode === true): Always reveal correct answer & explanation, and lock all choices.
-  const isTimedActive = examMode === 'Timed' && !isReviewMode
-  const showResultAndExplanation = isReviewMode || (examMode === 'Tutor' && Boolean(picked))
-  const isChoiceLocked = isReviewMode || (examMode === 'Tutor' && Boolean(picked))
+  const questionCode = question.title.split(' · ')[0] || `Q${String(question.id).padStart(3, '0')}`
 
   return (
-    <article className="reader">
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          flexWrap: 'wrap',
-          marginBottom: 12,
-        }}
-      >
-        <div className="qcardMetaLine">
-          {questionNumberLabel && (
-            <>
-              <strong
-                style={{
-                  background: '#141816',
-                  color: '#ffffff',
-                  padding: '2px 9px',
-                  borderRadius: 999,
-                  fontSize: 11.5,
-                }}
-              >
-                {questionNumberLabel}
-              </strong>
-              <span aria-hidden="true">·</span>
-            </>
-          )}
-          <strong style={{ color: '#19b368' }}>{question.target || 'Unclassified'}</strong>
-          <span aria-hidden="true">·</span>
-          <strong style={{ color: '#2e7cf6' }}>{question.source}</strong>
-          <span aria-hidden="true">·</span>
-          <span>{question.topic}</span>
-          {question.tags?.map((t) => (
-            <React.Fragment key={t}>
-              <span aria-hidden="true">·</span>
-              <span>{t}</span>
-            </React.Fragment>
-          ))}
+    <article className="reader animateQuestionSlide" key={question.id}>
+      {/* ====================================================================
+          FOCAL POINT 1: Concise Metadata Header (Question # + 1 Subtle Topic)
+         ==================================================================== */}
+      <header className="cleanReaderHeader">
+        <div className="cleanReaderMetaLeft">
+          <span className="cleanReaderQNum">{questionNumberLabel || questionCode}</span>
+          <span className="cleanReaderMetaDivider" aria-hidden="true">·</span>
+          <span className="cleanReaderSubtleTopic">{question.target || question.topic}</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <div className="cleanReaderActionsRight">
           {onOpenNoteModal && (
             <button
               type="button"
@@ -870,13 +844,7 @@ function Reader({
               onClick={onOpenNoteModal}
               title="Open personal study notes for this question"
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-              </svg>
-              <span>{hasNote ? 'View / Edit Note' : '+ Add Study Note'}</span>
+              <span>📝 {hasNote ? 'Note' : '+ Note'}</span>
             </button>
           )}
 
@@ -886,17 +854,26 @@ function Reader({
               className="flagToggleBtn"
               aria-pressed={Boolean(isFlagged)}
               onClick={() => onToggleFlag(question.id)}
+              title="Flag question for review"
             >
-              <span>{isFlagged ? '★' : '☆'}</span>
-              <span>{isFlagged ? 'Flagged for Review' : 'Flag for Review'}</span>
+              <span aria-hidden="true">{isFlagged ? '★' : '☆'}</span>
+              <span>{isFlagged ? 'Flagged' : 'Flag'}</span>
             </button>
           )}
         </div>
+      </header>
+
+      {/* ====================================================================
+          FOCAL POINT 2: 100% Verbatim Clinical Stem / Vignette
+         ==================================================================== */}
+      <div className="clinicalVignetteProse">
+        <p>{fields[0].value}</p>
       </div>
 
-      <p>{fields[0].value}</p>
-
-      <ol className="quizChoices">
+      {/* ====================================================================
+          FOCAL POINT 3: Left-Aligned Answer Option Rows (with 1-5 / A-E Shortcuts)
+         ==================================================================== */}
+      <ol className="quizChoices" aria-label="Answer choices">
         {fields.slice(1, 6).map((field, i) => {
           const letter = 'ABCDE'[i]
           const isPickedLetter = picked === letter
@@ -912,10 +889,10 @@ function Reader({
           const badgeLabel = showResultAndExplanation
             ? result
               ? isPickedLetter && result === 'Correct'
-                ? 'Your Answer · Correct'
+                ? '✓ Correct'
                 : isPickedLetter && result === 'Incorrect'
-                ? 'Your Answer · Incorrect'
-                : 'Correct Answer'
+                ? '✕ Your Choice'
+                : '✓ Correct Answer'
               : ''
             : isTimedActive && isPickedLetter
             ? 'Selected'
@@ -936,74 +913,151 @@ function Reader({
                   if (onPickChoice) {
                     onPickChoice(question.id, letter, key ? letter === key : false)
                   }
-                  if (!isTimedActive) {
-                    setOpen(true)
-                  }
                 }}
               >
-                <strong>{letter}</strong>
-                <span>{field.value}</span>
-                {badgeLabel && <b>{badgeLabel}</b>}
+                <div className="choiceOptionLeft">
+                  <strong className="choiceLetterBadge" title={`Keyboard shortcut: ${letter} or ${i + 1}`}>
+                    {letter}.
+                  </strong>
+                  <span className="choiceOptionText">{field.value}</span>
+                </div>
+                {badgeLabel && (
+                  <b
+                    className="choiceStatusTag"
+                    data-tone={
+                      result === 'Correct'
+                        ? 'correct'
+                        : result === 'Incorrect'
+                        ? 'incorrect'
+                        : 'neutral'
+                    }
+                  >
+                    {badgeLabel}
+                  </b>
+                )}
               </button>
             </li>
           )
         })}
       </ol>
 
+      {/* ====================================================================
+          SINGLE UNIFIED EXPLANATION (100% Verbatim from Question Bank)
+          Shows the complete Correct Answer and full Explanation in one go
+          without splitting into "Why Option Fits" and "Why Other Options Are Wrong"
+         ==================================================================== */}
       {isTimedActive ? (
         <div className="examModeInlineNotice" data-mode="timed">
           {picked ? (
             <span>
-              <strong>Answer Recorded (Option {picked}):</strong> Your response is saved. Answers and explanations remain
-              hidden during Timed Mode. Click <strong>Next Question →</strong> below to proceed, or{' '}
-              <strong>End Block</strong> when you are ready to finish.
+              <strong>Option {picked} Recorded:</strong> Answers and explanations remain hidden during active Timed Mode.
+              Use <strong>Next Question →</strong> (or <kbd className="kbdHint">→</kbd>) to continue.
             </span>
           ) : (
             <span>
-              <strong>Timed Mode Active:</strong> Answers and explanations are hidden during the block. Select an answer
-              choice above, then click <strong>Next Question →</strong> to proceed.
+              <strong>Timed Mode:</strong> Select an option (<kbd className="kbdHint">A</kbd>–<kbd className="kbdHint">E</kbd> or{' '}
+              <kbd className="kbdHint">1</kbd>–<kbd className="kbdHint">5</kbd>), then press <strong>Next Question →</strong>.
             </span>
           )}
         </div>
       ) : showResultAndExplanation ? (
-        <>
+        <div className="explanationBox animateQuestionSlide" aria-live="polite">
           <div
-            aria-live="polite"
             className="readerResultStatusBanner"
             data-status={!picked ? 'unanswered' : picked === key ? 'correct' : 'incorrect'}
           >
-            {!picked
-              ? `Unanswered in this block · The correct answer is ${key}.`
-              : picked === key
-              ? `✓ Correct answer selected (${picked}). ${
-                  isReviewMode ? 'End-of-Block Review' : 'Answer locked in Tutor Mode.'
-                }`
-              : `✕ Incorrect. You selected ${picked} — the correct answer is ${key}. ${
-                  isReviewMode ? 'End-of-Block Review' : 'Answer locked in Tutor Mode (cannot be changed after viewing explanation).'
-                }`}
+            {showCompanionIcons && Boolean(picked) && (
+              <PixelKidneyMascot
+                size={32}
+                mood={picked === key ? 'happy' : 'inflamed'}
+                className="feedbackKidneyMascot"
+              />
+            )}
+            <div className="readerResultBannerText">
+              <span className="readerResultCoreLabel">Core Takeaway</span>
+              <strong>
+                {!picked
+                  ? `Unanswered · Correct Answer: ${key}`
+                  : picked === key
+                  ? `✓ Correct! You selected ${picked}.`
+                  : `✕ Incorrect. You selected ${picked} (Locked). The correct answer is ${key}.`}
+              </strong>
+            </div>
           </div>
 
-          <button type="button" className="answerToggle" aria-expanded={open} onClick={() => setOpen(!open)}>
-            Answer and explanation {open ? '▴' : '▾'}
-          </button>
+          <h3>Correct Answer</h3>
+          <p>{answer}</p>
 
-          {open && (
-            <section className="explanationBox">
-              <h3>Correct answer</h3>
-              <p>{answer}</p>
-              <h3 style={{ marginTop: 14 }}>Educational Objective &amp; Guideline Rationale</h3>
-              <p>{fields[7].value}</p>
-            </section>
-          )}
-        </>
+          <h3>Explanation</h3>
+          <p>{explanationText}</p>
+        </div>
       ) : (
         <div className="examModeInlineNotice" data-mode="tutor">
           <span>
-            <strong>Tutor Mode:</strong> Select an answer choice above to lock your response and immediately view the
-            correct answer and guideline explanation.
+            <strong>Tutor Mode:</strong> Select an option (<kbd className="kbdHint">A</kbd>–<kbd className="kbdHint">E</kbd> or{' '}
+            <kbd className="kbdHint">1</kbd>–<kbd className="kbdHint">5</kbd>) to lock your choice and reveal the explanation.
           </span>
         </div>
       )}
+
+      {/* ====================================================================
+          MUTED COLLAPSIBLE FOOTER: Secondary Metadata (Source, Tags, Stats)
+         ==================================================================== */}
+      <footer className="cleanReaderFooter">
+        <button
+          type="button"
+          className="cleanReaderFooterToggle"
+          aria-expanded={showMetaFooter}
+          onClick={() => setShowMetaFooter((prev) => !prev)}
+        >
+          <span>
+            Question Metadata &amp; Clinical Tags ({question.source} · {question.topic})
+          </span>
+          <span aria-hidden="true">{showMetaFooter ? 'Hide ▴' : 'Show ▾'}</span>
+        </button>
+
+        <div className="smoothAccordionWrap" data-open={showMetaFooter}>
+          <div className="smoothAccordionInner">
+            <div className="cleanReaderFooterDetails">
+              <span>
+                <strong>Evidence Source:</strong> {question.source}
+              </span>
+              <span aria-hidden="true">·</span>
+              <span>
+                <strong>Decision Target:</strong> {question.target || 'Unclassified'}
+              </span>
+              <span aria-hidden="true">·</span>
+              <span>
+                <strong>Sub-Topic:</strong> {question.topic}
+              </span>
+              {typeof peerAccuracyRate === 'number' && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    <strong>Peer Correctness:</strong> {peerAccuracyRate}%
+                  </span>
+                </>
+              )}
+              {typeof elapsedSeconds === 'number' && elapsedSeconds > 0 && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    <strong>Time Spent:</strong> {formatDuration(elapsedSeconds)}
+                  </span>
+                </>
+              )}
+              {question.tags && question.tags.length > 0 && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    <strong>Clinical Tags:</strong> {question.tags.join(', ')}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </footer>
     </article>
   )
 }
@@ -1013,6 +1067,56 @@ function App() {
   const [mode, M] = useState<'Read' | 'Notes' | 'Edit record'>('Read')
   const [chartSplitMode, setChartSplitMode] = useState<'target' | 'source' | 'topic'>('target')
   const [selectedBarIdx, setSelectedBarIdx] = useState<number>(0)
+
+  // Light / Dark theme toggle (persisted to localStorage)
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    try {
+      return localStorage.getItem('atlas-theme') === 'dark' ? 'dark' : 'light'
+    } catch {
+      return 'light'
+    }
+  })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    try {
+      localStorage.setItem('atlas-theme', theme)
+    } catch {
+      // ignore storage error
+    }
+  }, [theme])
+
+  // Minimal Mode Toggle: Companion Icons On/Off (persisted in localStorage)
+  const [companionIcons, setCompanionIcons] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('atlas-companion-icons')
+      return saved === null ? true : saved === 'true'
+    } catch {
+      return true
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('atlas-companion-icons', String(companionIcons))
+    } catch {
+      // ignore storage error
+    }
+  }, [companionIcons])
+
+  // Consecutive Correct Answer Streak (activates PixelFiltrateDrop when >= 3)
+  const [correctStreak, setCorrectStreak] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('atlas-correct-streak')
+      return saved !== null ? Number(saved) || 0 : 3
+    } catch {
+      return 3
+    }
+  })
+
+  // Collapsible Question Navigator / Sidebar states (toggled via `[` keyboard shortcut or button)
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true)
+  const [isExamNavDrawerOpen, setIsExamNavDrawerOpen] = useState<boolean>(false)
 
   // Selected Glomerular Disease inside the "Glomerular Topics" tab
   const [selectedGlomerularDisease, setSelectedGlomerularDisease] = useState<string>('ANCA-Associated Vasculitis')
@@ -1156,10 +1260,20 @@ function App() {
   const [showEndBlockConfirm, setShowEndBlockConfirm] = useState<boolean>(false)
   const [blockReviewLayout, setBlockReviewLayout] = useState<'all' | 'single'>('all')
   const [blockReviewFilter, setBlockReviewFilter] = useState<'all' | 'incorrect' | 'correct' | 'unanswered' | 'flagged'>('all')
+  const [expandedReviewIds, setExpandedReviewIds] = useState<number[]>([])
 
   function handleRecordAttempt(qId: number, letter: string, isCorrect: boolean) {
     const next = { ...attempts, [qId]: { choice: letter, correct: isCorrect } }
     setAttempts(next)
+    setCorrectStreak((prev) => {
+      const updated = isCorrect ? prev + 1 : 0
+      try {
+        localStorage.setItem('atlas-correct-streak', String(updated))
+      } catch {
+        // ignore storage errors
+      }
+      return updated
+    })
     try {
       localStorage.setItem('nephro-qbank-attempts-v4', JSON.stringify(next))
     } catch {
@@ -1182,12 +1296,24 @@ function App() {
     handleRecordAttempt(qId, letter, isCorrect)
   }
 
+  function handleOpenEndBlockConfirm() {
+    setShowEndBlockConfirm(true)
+    window.setTimeout(() => {
+      document.getElementById('end-block-confirm-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }, 40)
+  }
+
   function handleFinishBlockReview() {
     setShowEndBlockConfirm(false)
     setIsBlockSubmitted(true)
     setBlockReviewLayout('all')
     setBlockReviewFilter('all')
+    setExpandedReviewIds([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function toggleReviewQuestionAccordion(qId: number) {
+    setExpandedReviewIds((prev) => (prev.includes(qId) ? prev.filter((id) => id !== qId) : [...prev, qId]))
   }
 
   function handleToggleFlag(qId: number) {
@@ -1223,10 +1349,12 @@ function App() {
     setBlockAnswers({})
     setModalSessionAnswers({})
     setQuestionElapsedMap({})
+    setCorrectStreak(3)
     try {
       localStorage.setItem('nephro-qbank-attempts-v4', JSON.stringify(freshRandomized.seededAttempts))
       localStorage.setItem('nephro-qbank-flagged-v4', JSON.stringify(freshRandomized.seededFlags))
       localStorage.setItem('nephro-qbank-notes-v1', JSON.stringify(freshRandomized.seededNotes))
+      localStorage.setItem('atlas-correct-streak', '3')
     } catch {
       // ignore
     }
@@ -1238,9 +1366,11 @@ function App() {
     setBlockAnswers({})
     setModalSessionAnswers({})
     setQuestionElapsedMap({})
+    setCorrectStreak(0)
     try {
       localStorage.setItem('nephro-qbank-attempts-v4', JSON.stringify({}))
       localStorage.setItem('nephro-qbank-flagged-v4', JSON.stringify([]))
+      localStorage.setItem('atlas-correct-streak', '0')
     } catch {
       // ignore
     }
@@ -1921,11 +2051,96 @@ function App() {
   // When inside an exam block, ONLY the block is visible on the screen (hide top header, navigation tabs, and welcome buttons)
   const isInsideExamBlock = Boolean(activeExamIds && activeExamIds.length > 0 && navTab === 'Create Test')
 
+  // Smoothly scroll reading container back to top whenever activeExamIndex changes
+  useEffect(() => {
+    if (isInsideExamBlock) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [activeExamIndex, isInsideExamBlock])
+
+  // Global Keyboard Navigation:
+  // - `[` toggles the Question Navigator / Sidebar drawer
+  // - `ArrowLeft` / `ArrowRight` navigates Previous / Next question inside an active block
+  useEffect(() => {
+    function onGlobalKeyDown(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+
+      if (e.key === '[') {
+        e.preventDefault()
+        if (isInsideExamBlock) {
+          setIsExamNavDrawerOpen((prev) => !prev)
+        } else {
+          setIsSidebarOpen((prev) => !prev)
+        }
+        return
+      }
+
+      if (isInsideExamBlock && !edit && activeExamIds && activeExamIds.length > 0) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault()
+          setActiveExamIndex((prev) => Math.max(0, prev - 1))
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault()
+          setActiveExamIndex((prev) => Math.min(activeExamIds.length - 1, prev + 1))
+        }
+      }
+    }
+
+    window.addEventListener('keydown', onGlobalKeyDown)
+    return () => window.removeEventListener('keydown', onGlobalKeyDown)
+  }, [isInsideExamBlock, edit, activeExamIds])
+
   const activeGlomerularModule =
     GLOMERULAR_MODULES.find((m) => m.id === selectedGlomerularDisease) || GLOMERULAR_MODULES[0]
 
+  // Active filter count for Question Bank compact toolbar
+  const activeFilterCount =
+    (source ? 1 : 0) +
+    (topic ? 1 : 0) +
+    (target ? 1 : 0) +
+    (tag ? 1 : 0) +
+    (status ? 1 : 0) +
+    (attemptFilter ? 1 : 0) +
+    (recent ? 1 : 0) +
+    (search.trim() ? 1 : 0) +
+    (sortOrder !== 'default' ? 1 : 0)
+
+  // Top 4px animated progress bar percentage & compact X / Y counter
+  const blockCompletedCount = activeExamIds ? activeExamIds.filter((id) => Boolean(blockAnswers[id])).length : 0
+  const blockStepPct =
+    isInsideExamBlock && activeExamIds && activeExamIds.length > 0
+      ? Math.round(((activeExamIndex + 1) / activeExamIds.length) * 100)
+      : 0
+  const topProgressPct =
+    isInsideExamBlock && activeExamIds && activeExamIds.length > 0
+      ? Math.round(
+          ((blockCompletedCount * 0.65 + (activeExamIndex + (blockAnswers[activeExamIds[activeExamIndex]] ? 1 : 0.35)) * 0.35) /
+            activeExamIds.length) *
+            100
+        )
+      : totalAvailable > 0
+      ? Math.round((attemptedCount / totalAvailable) * 100)
+      : 0
+
   return (
     <div className="luminaShell">
+      {/* Sleek Top Animated Progress Bar (animates fluidly on question navigation and status updates) */}
+      <div
+        className="topProgressTrack"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={topProgressPct}
+        aria-label="Question completion progress"
+      >
+        {isInsideExamBlock && (
+          <div className="topProgressStepFill" style={{ width: `${blockStepPct}%` }} />
+        )}
+        <div className="topProgressFill" style={{ width: `${topProgressPct}%` }} />
+      </div>
+
       {/* Top Navigation Bar — Hidden while inside an active practice block so only the block is visible */}
       {!isInsideExamBlock && (
         <header className="luminaHeader">
@@ -1941,7 +2156,10 @@ function App() {
               <path d="M2 6L10.5 6L16 22L7.5 22L2 6Z" fill="#85dba9" />
               <path d="M18 4L32 4L24.5 24L13.5 24L18 4Z" fill="#19b368" />
             </svg>
-            <span>Nephro</span>
+            <div className="luminaBrandTextWrap">
+              <span>Question Atlas</span>
+              <small className="luminaBrandSub">ANCA-Associated Vasculitis</small>
+            </div>
           </a>
 
           {/* Center Floating White Pill Navigation */}
@@ -1960,23 +2178,56 @@ function App() {
                   }
                 }}
               >
-                {tab}
+                {tab === 'Glomerular Topics' ? 'AAV Domains' : tab}
               </button>
             ))}
           </nav>
 
-          {/* Right Utility & Profile Cluster */}
+          {/* Consolidated De-noised Right Header Controls: Compact X/Y Counter + PixelFiltrateDrop, Companion Toggle, Theme Toggle, Settings */}
           <div className="luminaActionCluster">
             <button
               type="button"
-              className="luminaIconBtn"
-              aria-label="Author a new question"
-              title="Author new question"
-              onClick={() => createNewQuestionRecord()}
+              className="compactProgressCounter"
+              title={`Completed / Total ANCA Vasculitis Questions · Current Streak: ${correctStreak}`}
+              onClick={() => openFilteredQBank({ attemptFilter: '' })}
             >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
-                <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-              </svg>
+              {companionIcons ? (
+                <PixelFiltrateDrop size={16} active={correctStreak >= 3} />
+              ) : (
+                <span className="compactProgressDot" aria-hidden="true" />
+              )}
+              <strong>{attemptedCount}</strong>
+              <span>/</span>
+              <span>{totalAvailable}</span>
+            </button>
+
+            <button
+              type="button"
+              className="companionTogglePill"
+              aria-pressed={companionIcons}
+              title="Toggle pixel nephrology companion icons on or off for distraction-free review"
+              onClick={() => setCompanionIcons((prev) => !prev)}
+            >
+              <span>Companion Icons: {companionIcons ? 'On' : 'Off'}</span>
+            </button>
+
+            <button
+              type="button"
+              className="luminaIconBtn"
+              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+            >
+              {theme === 'dark' ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
+                  <circle cx="12" cy="12" r="5" />
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              )}
             </button>
 
             <div style={{ position: 'relative' }}>
@@ -1984,7 +2235,7 @@ function App() {
                 type="button"
                 className="luminaIconBtn"
                 aria-label="Flagged questions and stats controls"
-                title="Flagged questions & stats controls"
+                title="Flagged questions & reset/settings controls"
                 aria-expanded={showNotifications}
                 onClick={() => setShowNotifications(!showNotifications)}
               >
@@ -1995,16 +2246,26 @@ function App() {
               </button>
               {showNotifications && (
                 <div
-                  className="facetPanel"
+                  className="facetPanel animatePopover"
                   style={{ right: 0, left: 'auto', width: 320, padding: 14 }}
                   role="dialog"
                   aria-label="Flagged review and progress controls"
                 >
-                  <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 6 }}>QBank Stats &amp; Review Controls</div>
-                  <div style={{ fontSize: 12.5, color: '#5a625d', marginBottom: 12 }}>
-                    {correctCount} Correct ({correctPct}%) · {wrongCount} Wrong ({wrongPct}%) · {flaggedCount} Flagged ({flaggedPct}%) · {notesCount} Notes
+                  <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 6 }}>QBank Stats &amp; Settings</div>
+                  <div style={{ fontSize: 12.5, color: 'var(--text-secondary)', marginBottom: 12 }}>
+                    {correctCount} Correct ({correctPct}%) · {wrongCount} Wrong ({wrongPct}%) · {flaggedCount} Flagged ({flaggedPct}%) · Streak: {correctStreak}
                   </div>
                   <div style={{ display: 'grid', gap: 8 }}>
+                    <button
+                      type="button"
+                      className="secondaryPillBtn"
+                      aria-pressed={companionIcons}
+                      style={{ width: '100%', justifyContent: 'space-between', padding: '8px 12px' }}
+                      onClick={() => setCompanionIcons((prev) => !prev)}
+                    >
+                      <span>Companion Icons</span>
+                      <strong>{companionIcons ? 'On' : 'Off'}</strong>
+                    </button>
                     <button
                       type="button"
                       className="createExamBtn"
@@ -2015,6 +2276,17 @@ function App() {
                       }}
                     >
                       Filter by Flagged ({flaggedCount})
+                    </button>
+                    <button
+                      type="button"
+                      className="secondaryPillBtn"
+                      style={{ width: '100%', justifyContent: 'center', padding: '8px 12px' }}
+                      onClick={() => {
+                        setShowNotifications(false)
+                        createNewQuestionRecord()
+                      }}
+                    >
+                      + Author New ANCA Question
                     </button>
                     <button
                       type="button"
@@ -2042,20 +2314,6 @@ function App() {
                 </div>
               )}
             </div>
-
-            <button
-              type="button"
-              className="luminaAvatarBtn"
-              aria-label="Test User profile"
-              title="Test User — Question Bank & Author Profile"
-              onClick={() => setNavTab('Author')}
-            >
-              <svg viewBox="0 0 40 40" width="38" height="38" aria-hidden="true">
-                <rect width="40" height="40" fill="#235c44" />
-                <circle cx="20" cy="15" r="6" fill="#d5efe0" />
-                <path d="M9 36c1.5-7.5 6.5-10.5 11-10.5S29.5 28.5 31 36" fill="#85dba9" />
-              </svg>
-            </button>
           </div>
         </header>
       )}
@@ -3773,107 +4031,157 @@ function App() {
                       const leftInBlockCount = Math.max(0, activeExamIds.length - completedInBlockCount)
                       return (
                         <>
-                          <div className="cardHeaderRow" style={{ marginBottom: 12 }}>
-                            <div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-                                <span
-                                  className="blockModeBadge"
-                                  data-mode={testMode.toLowerCase()}
-                                >
-                                  {testMode === 'Timed'
-                                    ? '⏱ TIMED MODE · ANSWERS HIDDEN UNTIL END OF BLOCK'
-                                    : '📖 TUTOR MODE · IMMEDIATE EXPLANATION & ANSWER LOCK'}
+                          {/* De-noised Active Block Top Bar */}
+                          <div className="cardHeaderRow" style={{ marginBottom: 14 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                              <button
+                                type="button"
+                                className="sidebarToggleBtn"
+                                aria-pressed={isExamNavDrawerOpen}
+                                onClick={() => setIsExamNavDrawerOpen((prev) => !prev)}
+                                title="Toggle Question Navigator ([)"
+                              >
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="3" y="3" width="18" height="18" rx="2.5" />
+                                  <line x1="9" y1="3" x2="9" y2="21" />
+                                </svg>
+                                <span>Navigator ({activeExamIndex + 1}/{activeExamIds.length})</span>
+                                <kbd className="kbdHint">[</kbd>
+                              </button>
+
+                              <span
+                                className="blockModeBadge"
+                                data-mode={testMode.toLowerCase()}
+                              >
+                                {testMode === 'Timed'
+                                  ? '⏱ TIMED MODE · ANSWERS HIDDEN'
+                                  : '📖 TUTOR MODE · IMMEDIATE RATIONALE'}
+                              </span>
+
+                              <span className="blockProgressPillBadge">
+                                {companionIcons && <PixelFiltrateDrop size={16} active={correctStreak >= 3} />}
+                                <span>
+                                  <strong>{completedInBlockCount}</strong> / <strong>{activeExamIds.length}</strong> · Left:{' '}
+                                  <strong>{leftInBlockCount}</strong>
                                 </span>
-                                <span className="blockProgressPillBadge">
-                                  Completed: <strong>{completedInBlockCount}</strong> · Left: <strong>{leftInBlockCount}</strong> of {activeExamIds.length}
-                                </span>
-                              </div>
-                              <h2 className="cardTitle">
-                                {testMode} Mode Block · Question {activeExamIndex + 1} of {activeExamIds.length}
-                              </h2>
-                              <p style={{ margin: '2px 0 0', fontSize: 13, color: '#5a625d' }}>
-                                {activeExamQuestion.title}
-                              </p>
+                              </span>
                             </div>
+
                             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                               <button
                                 type="button"
-                                className="noteBadgeBtn"
-                                onClick={() => openQuestion(activeExamQuestion, 'Notes')}
+                                className="companionTogglePill"
+                                aria-pressed={companionIcons}
+                                title="Toggle pixel nephrology companion icons on or off"
+                                onClick={() => setCompanionIcons((prev) => !prev)}
                               >
-                                📝 {notes[activeExamQuestion.id]?.trim() ? 'Edit Study Note' : '+ Add Study Note'}
+                                <span>Companion Icons: {companionIcons ? 'On' : 'Off'}</span>
                               </button>
+
+                              <button
+                                type="button"
+                                className="luminaIconBtn"
+                                aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                                onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+                              >
+                                {theme === 'dark' ? (
+                                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
+                                    <circle cx="12" cy="12" r="5" />
+                                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                                  </svg>
+                                ) : (
+                                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                                  </svg>
+                                )}
+                              </button>
+
                               <button
                                 type="button"
                                 className="endBlockTriggerBtn"
                                 aria-expanded={showEndBlockConfirm}
-                                onClick={() => setShowEndBlockConfirm(true)}
+                                onClick={handleOpenEndBlockConfirm}
                               >
                                 ✕ End Block
                               </button>
                             </div>
                           </div>
 
-                          {/* End Block Confirmation Notification with Short Numerical Indicator of Completed & Left Questions */}
-                          {showEndBlockConfirm && (
-                            <div className="endBlockConfirmBox" role="alertdialog" aria-labelledby="end-block-confirm-title">
-                              <div className="endBlockConfirmTop">
-                                <div>
-                                  <h3 id="end-block-confirm-title" className="endBlockConfirmTitle">
-                                    End or Exit Current Practice Block?
-                                  </h3>
-                                  <p className="endBlockConfirmText">
-                                    Do you want to exit this block now? Review your block completion summary below before ending:
-                                  </p>
-                                </div>
-                                <div className="endBlockNumericStrip" aria-label="Block completion count indicator">
-                                  <div className="endBlockNumericItem" data-tone="completed">
-                                    <span>Completed</span>
-                                    <strong>{completedInBlockCount}</strong>
-                                  </div>
-                                  <div className="endBlockNumericItem" data-tone="left">
-                                    <span>Questions Left</span>
-                                    <strong>{leftInBlockCount}</strong>
-                                  </div>
-                                  <div className="endBlockNumericItem" data-tone="total">
-                                    <span>Block Total</span>
-                                    <strong>{activeExamIds.length}</strong>
-                                  </div>
-                                </div>
-                              </div>
+                          {/* Smooth Top Block Progress Bar (animates fluidly on moving between questions or updating status) */}
+                          <div
+                            className="blockInlineProgressTrack"
+                            role="progressbar"
+                            aria-valuemin={0}
+                            aria-valuemax={activeExamIds.length}
+                            aria-valuenow={completedInBlockCount}
+                            aria-label="Block question navigation and completion progress"
+                          >
+                            <div
+                              className="blockInlineProgressStepFill"
+                              style={{
+                                width: `${Math.round(((activeExamIndex + 1) / activeExamIds.length) * 100)}%`,
+                              }}
+                            />
+                            <div
+                              className="blockInlineProgressFill"
+                              style={{
+                                width: `${Math.round((completedInBlockCount / activeExamIds.length) * 100)}%`,
+                              }}
+                            />
+                          </div>
 
-                              <div className="endBlockConfirmActions">
-                                <button
-                                  type="button"
-                                  className="secondaryPillBtn"
-                                  onClick={() => setShowEndBlockConfirm(false)}
-                                >
-                                  ↩ Continue Block ({leftInBlockCount} Left)
-                                </button>
-                                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          {/* Collapsible Slide-Over Question Navigator Drawer (Toggled via `[` or Navigator button) */}
+                          <div
+                            className="smoothAccordionWrap"
+                            data-open={isExamNavDrawerOpen}
+                            aria-hidden={!isExamNavDrawerOpen}
+                          >
+                            <div className="smoothAccordionInner">
+                              <div className="examNavDrawerPanel">
+                                <div className="examNavDrawerHeader">
+                                  <span>
+                                    <strong>Question Navigator</strong> · Click any item or use{' '}
+                                    <kbd className="kbdHint">←</kbd> / <kbd className="kbdHint">→</kbd> arrows
+                                  </span>
                                   <button
                                     type="button"
-                                    className="createExamBtn"
-                                    onClick={handleFinishBlockReview}
+                                    className="structuredLabToggleBtn"
+                                    onClick={() => setIsExamNavDrawerOpen(false)}
                                   >
-                                    ✓ End Block &amp; Review All Answers
+                                    Hide Navigator <kbd className="kbdHint">[</kbd>
                                   </button>
-                                  <button
-                                    type="button"
-                                    className="endBlockExitBtn"
-                                    onClick={() => {
-                                      setShowEndBlockConfirm(false)
-                                      setIsBlockSubmitted(false)
-                                      setActiveExamIds(null)
-                                      setNavTab('Dashboard')
-                                    }}
-                                  >
-                                    Exit Block to Dashboard
-                                  </button>
+                                </div>
+                                <div className="examPillTrack" role="tablist" aria-label="Exam question navigator">
+                                  {activeExamIds.map((qId, idx) => {
+                                    const blockAttempt = blockAnswers[qId]
+                                    const statusAttr = blockAttempt
+                                      ? testMode === 'Timed'
+                                        ? 'answered'
+                                        : blockAttempt.correct
+                                        ? 'correct'
+                                        : 'incorrect'
+                                      : undefined
+                                    const isQFlagged = flaggedIds.includes(qId)
+                                    return (
+                                      <button
+                                        key={qId}
+                                        type="button"
+                                        className="examStepPill"
+                                        data-current={idx === activeExamIndex}
+                                        data-status={statusAttr}
+                                        onClick={() => setActiveExamIndex(idx)}
+                                        title={`Question ${idx + 1}${isQFlagged ? ' (Flagged for Review)' : ''}`}
+                                      >
+                                        {idx + 1}
+                                        {isQFlagged && <span className="examStepFlagDot" aria-hidden="true" />}
+                                      </button>
+                                    )
+                                  })}
                                 </div>
                               </div>
                             </div>
-                          )}
+                          </div>
 
                           {/* Focus Timer Component: shown ONLY in active Timed Mode */}
                           {testMode === 'Timed' && (
@@ -3892,78 +4200,123 @@ function App() {
                             />
                           )}
 
-                          <div className="examPillTrack" role="tablist" aria-label="Exam question navigator">
-                            {activeExamIds.map((qId, idx) => {
-                              // Uses ONLY blockAnswers[qId] (never historical attempts[qId]) so every question in a new block starts unmarked!
-                              // In Timed Mode, never leak whether the choice was correct or incorrect before the end of the block!
-                              const blockAttempt = blockAnswers[qId]
-                              const statusAttr = blockAttempt
-                                ? testMode === 'Timed'
-                                  ? 'answered'
-                                  : blockAttempt.correct
-                                  ? 'correct'
-                                  : 'incorrect'
-                                : undefined
-                              const isQFlagged = flaggedIds.includes(qId)
-                              return (
-                                <button
-                                  key={qId}
-                                  type="button"
-                                  className="examStepPill"
-                                  data-current={idx === activeExamIndex}
-                                  data-status={statusAttr}
-                                  onClick={() => setActiveExamIndex(idx)}
-                                  title={`Question ${idx + 1}${isQFlagged ? ' (Flagged for Review)' : ''}`}
-                                >
-                                  {idx + 1}
-                                  {isQFlagged && <span className="examStepFlagDot" aria-hidden="true" />}
-                                </button>
-                              )
-                            })}
-                          </div>
+                          {/* Distraction-Free Centered Reading Column (max-w-3xl / max-w-4xl) */}
+                          <div className="distractionFreeReadingColumn">
+                            <Reader
+                              key={activeExamQuestion.id}
+                              question={activeExamQuestion}
+                              savedChoice={blockAnswers[activeExamQuestion.id]?.choice}
+                              isFlagged={flaggedIds.includes(activeExamQuestion.id)}
+                              hasNote={Boolean(notes[activeExamQuestion.id]?.trim())}
+                              examMode={testMode}
+                              isReviewMode={false}
+                              showCompanionIcons={companionIcons}
+                              questionNumberLabel={`Question ${activeExamIndex + 1} of ${activeExamIds.length}`}
+                              peerAccuracyRate={questionCorrectnessRates[activeExamQuestion.id]}
+                              elapsedSeconds={questionElapsedMap[activeExamQuestion.id]}
+                              onOpenNoteModal={() => openQuestion(activeExamQuestion, 'Notes')}
+                              onToggleFlag={handleToggleFlag}
+                              onPickChoice={handleRecordBlockAttempt}
+                            />
 
-                          <Reader
-                            key={activeExamQuestion.id}
-                            question={activeExamQuestion}
-                            savedChoice={blockAnswers[activeExamQuestion.id]?.choice}
-                            isFlagged={flaggedIds.includes(activeExamQuestion.id)}
-                            hasNote={Boolean(notes[activeExamQuestion.id]?.trim())}
-                            examMode={testMode}
-                            isReviewMode={false}
-                            onOpenNoteModal={() => openQuestion(activeExamQuestion, 'Notes')}
-                            onToggleFlag={handleToggleFlag}
-                            onPickChoice={handleRecordBlockAttempt}
-                          />
-
-                          <div className="paginationBar" style={{ marginTop: 16 }}>
-                            <button
-                              type="button"
-                              className="sourceBtn"
-                              disabled={activeExamIndex === 0}
-                              onClick={() => setActiveExamIndex(Math.max(0, activeExamIndex - 1))}
-                            >
-                              ← Previous Question
-                            </button>
-                            <span>
-                              Completed: <strong>{completedInBlockCount}</strong> · Left: <strong>{leftInBlockCount}</strong> of{' '}
-                              <strong>{activeExamIds.length}</strong>
-                            </span>
-                            {activeExamIndex + 1 < activeExamIds.length ? (
+                            <div className="paginationBar" style={{ marginTop: 18 }}>
                               <button
                                 type="button"
                                 className="sourceBtn"
-                                onClick={() => setActiveExamIndex(Math.min(activeExamIds.length - 1, activeExamIndex + 1))}
+                                disabled={activeExamIndex === 0}
+                                onClick={() => setActiveExamIndex(Math.max(0, activeExamIndex - 1))}
                               >
-                                Next Question →
+                                ← Previous <kbd className="kbdHint">←</kbd>
                               </button>
-                            ) : (
-                              <button
-                                type="button"
-                                className="endBlockTriggerBtn"
-                                onClick={() => setShowEndBlockConfirm(true)}
+                              <span>
+                                Question <strong>{activeExamIndex + 1}</strong> of <strong>{activeExamIds.length}</strong> ·{' '}
+                                Completed: <strong>{completedInBlockCount}</strong> · Left: <strong>{leftInBlockCount}</strong>
+                              </span>
+                              {activeExamIndex + 1 < activeExamIds.length ? (
+                                <button
+                                  type="button"
+                                  className="sourceBtn"
+                                  onClick={() => setActiveExamIndex(Math.min(activeExamIds.length - 1, activeExamIndex + 1))}
+                                >
+                                  Next Question <kbd className="kbdHint">→</kbd>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="endBlockTriggerBtn"
+                                  aria-expanded={showEndBlockConfirm}
+                                  onClick={handleOpenEndBlockConfirm}
+                                >
+                                  End Block →
+                                </button>
+                              )}
+                            </div>
+
+                            {/* End Block Confirmation Options Positioned at the Bottom for Easy Transition */}
+                            {showEndBlockConfirm && (
+                              <div
+                                id="end-block-confirm-panel"
+                                className="endBlockConfirmBox animateQuestionSlide"
+                                style={{ marginTop: 16, marginBottom: 0 }}
+                                role="alertdialog"
+                                aria-labelledby="end-block-confirm-title"
                               >
-                                End Block →
-                              </button>
+                                <div className="endBlockConfirmTop">
+                                  <div>
+                                    <h3 id="end-block-confirm-title" className="endBlockConfirmTitle">
+                                      End or Exit Current Practice Block?
+                                    </h3>
+                                    <p className="endBlockConfirmText">
+                                      Choose whether to review your answers for this block or exit directly to the dashboard:
+                                    </p>
+                                  </div>
+                                  <div className="endBlockNumericStrip" aria-label="Block completion count indicator">
+                                    <div className="endBlockNumericItem" data-tone="completed">
+                                      <span>Completed</span>
+                                      <strong>{completedInBlockCount}</strong>
+                                    </div>
+                                    <div className="endBlockNumericItem" data-tone="left">
+                                      <span>Questions Left</span>
+                                      <strong>{leftInBlockCount}</strong>
+                                    </div>
+                                    <div className="endBlockNumericItem" data-tone="total">
+                                      <span>Block Total</span>
+                                      <strong>{activeExamIds.length}</strong>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="endBlockConfirmActions">
+                                  <button
+                                    type="button"
+                                    className="secondaryPillBtn"
+                                    onClick={() => setShowEndBlockConfirm(false)}
+                                  >
+                                    ↩ Continue Block ({leftInBlockCount} Left)
+                                  </button>
+                                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                    <button
+                                      type="button"
+                                      className="createExamBtn"
+                                      onClick={handleFinishBlockReview}
+                                    >
+                                      ✓ End Block &amp; Review All Answers
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="endBlockExitBtn"
+                                      onClick={() => {
+                                        setShowEndBlockConfirm(false)
+                                        setIsBlockSubmitted(false)
+                                        setActiveExamIds(null)
+                                        setNavTab('Dashboard')
+                                      }}
+                                    >
+                                      Exit Block to Dashboard
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
                             )}
                           </div>
                         </>
@@ -3998,18 +4351,37 @@ function App() {
                         <div className="blockReviewWorkspace">
                           <div className="blockReviewSummaryCard">
                             <div className="cardHeaderRow" style={{ marginBottom: 14 }}>
-                              <div>
-                                <span className="blockModeBadge" data-mode="review">
-                                  ✓ END-OF-BLOCK REVIEW · {testMode.toUpperCase()} MODE COMPLETE
-                                </span>
-                                <h2 className="cardTitle" style={{ marginTop: 6 }}>
-                                  Block Complete: Review All Questions &amp; Answers ({blockCorrectCount} / {activeExamIds.length} Correct · {blockAccuracyPct}%)
-                                </h2>
-                                <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#5a625d' }}>
-                                  Review every question, your locked answer choice, the correct answer, and the full KDIGO / clinical trial rationale below.
-                                </p>
+                              <div className="completionSummaryTitleGroup">
+                                {companionIcons && (
+                                  <div className="completionSummaryMascotWrap">
+                                    <PixelKidneyMascot
+                                      size={48}
+                                      mood={blockAccuracyPct >= 70 ? 'trophy' : 'idle'}
+                                    />
+                                  </div>
+                                )}
+                                <div>
+                                  <span className="blockModeBadge" data-mode="review">
+                                    ✓ END-OF-BLOCK REVIEW · {testMode.toUpperCase()} MODE COMPLETE
+                                  </span>
+                                  <h2 className="cardTitle" style={{ marginTop: 6 }}>
+                                    Block Complete: Review All Questions &amp; Answers ({blockCorrectCount} / {activeExamIds.length} Correct · {blockAccuracyPct}%)
+                                  </h2>
+                                  <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
+                                    Review every question, your locked answer choice, the correct answer, and the complete KDIGO / clinical trial explanation below.
+                                  </p>
+                                </div>
                               </div>
-                              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                                <button
+                                  type="button"
+                                  className="companionTogglePill"
+                                  aria-pressed={companionIcons}
+                                  title="Toggle pixel nephrology companion icons on or off"
+                                  onClick={() => setCompanionIcons((prev) => !prev)}
+                                >
+                                  <span>Companion Icons: {companionIcons ? 'On' : 'Off'}</span>
+                                </button>
                                 <button
                                   type="button"
                                   className="secondaryPillBtn"
@@ -4101,10 +4473,15 @@ function App() {
                           </div>
 
                           {blockReviewLayout === 'all' ? (
-                            <div className="blockReviewList">
+                            <div className="blockReviewList distractionFreeReadingColumn">
                               {filteredReviewQuestions.length === 0 ? (
                                 <div className="blockReviewEmptyBox">
-                                  <p>No questions in this block match the selected filter.</p>
+                                  {companionIcons && (
+                                    <div style={{ marginBottom: 10 }}>
+                                      <PixelBiopsySlide size={40} />
+                                    </div>
+                                  )}
+                                  <p>No questions match your filters.</p>
                                   <button
                                     type="button"
                                     className="secondaryPillBtn"
@@ -4116,48 +4493,69 @@ function App() {
                               ) : (
                                 filteredReviewQuestions.map(({ q, idx }) => {
                                   const att = blockAnswers[q.id]
+                                  const isExpanded = expandedReviewIds.includes(q.id)
+                                  const statusTone = !att ? 'unanswered' : att.correct ? 'correct' : 'incorrect'
+                                  const statusLabel = !att ? 'Unanswered' : att.correct ? '✓ Correct' : '✕ Wrong'
+
                                   return (
                                     <div
                                       key={q.id}
-                                      className="blockReviewItemCard"
-                                      data-status={!att ? 'unanswered' : att.correct ? 'correct' : 'incorrect'}
+                                      className="blockReviewItemCard blockReviewAccordionCard"
+                                      data-status={statusTone}
+                                      data-expanded={isExpanded}
                                     >
-                                      <div className="blockReviewItemHeader">
-                                        <div>
+                                      <button
+                                        type="button"
+                                        className="blockReviewAccordionHeaderBtn"
+                                        aria-expanded={isExpanded}
+                                        onClick={() => toggleReviewQuestionAccordion(q.id)}
+                                      >
+                                        <span className="blockReviewAccordionQNum">
+                                          Question {idx + 1} of {activeExamIds.length}
+                                        </span>
+                                        <div className="blockReviewAccordionRight">
                                           <span
                                             className="blockReviewItemStatusPill"
-                                            data-status={!att ? 'unanswered' : att.correct ? 'correct' : 'incorrect'}
+                                            data-status={statusTone}
+                                            style={{ marginBottom: 0 }}
                                           >
-                                            {!att
-                                              ? 'Unanswered'
-                                              : att.correct
-                                              ? `✓ Correct (Selected ${att.choice})`
-                                              : `✕ Incorrect (Selected ${att.choice})`}
+                                            {statusLabel}
                                           </span>
-                                          <h3 className="blockReviewItemTitle">
-                                            Question {idx + 1} of {activeExamIds.length} · {q.title}
-                                          </h3>
+                                          <span className="blockReviewAccordionChevron" aria-hidden="true">
+                                            {isExpanded ? '▴' : '▾'}
+                                          </span>
+                                        </div>
+                                      </button>
+
+                                      <div className="smoothAccordionWrap" data-open={isExpanded}>
+                                        <div className="smoothAccordionInner">
+                                          {isExpanded && (
+                                            <div className="blockReviewAccordionBody">
+                                              <Reader
+                                                question={q}
+                                                savedChoice={att?.choice}
+                                                isFlagged={flaggedIds.includes(q.id)}
+                                                hasNote={Boolean(notes[q.id]?.trim())}
+                                                examMode={testMode}
+                                                isReviewMode={true}
+                                                showCompanionIcons={companionIcons}
+                                                questionNumberLabel={`Question ${idx + 1} of ${activeExamIds.length} · ${q.title.split(' · ')[0]}`}
+                                                peerAccuracyRate={questionCorrectnessRates[q.id]}
+                                                elapsedSeconds={questionElapsedMap[q.id]}
+                                                onOpenNoteModal={() => openQuestion(q, 'Notes')}
+                                                onToggleFlag={handleToggleFlag}
+                                              />
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
-
-                                      <Reader
-                                        question={q}
-                                        savedChoice={att?.choice}
-                                        isFlagged={flaggedIds.includes(q.id)}
-                                        hasNote={Boolean(notes[q.id]?.trim())}
-                                        examMode={testMode}
-                                        isReviewMode={true}
-                                        questionNumberLabel={`Q${idx + 1} of ${activeExamIds.length}`}
-                                        onOpenNoteModal={() => openQuestion(q, 'Notes')}
-                                        onToggleFlag={handleToggleFlag}
-                                      />
                                     </div>
                                   )
                                 })
                               )}
                             </div>
                           ) : (
-                            <>
+                            <div className="distractionFreeReadingColumn">
                               <div className="examPillTrack" role="tablist" aria-label="Block review question navigator">
                                 {activeExamIds.map((qId, idx) => {
                                   const blockAttempt = blockAnswers[qId]
@@ -4192,7 +4590,10 @@ function App() {
                                 hasNote={Boolean(notes[activeExamQuestion.id]?.trim())}
                                 examMode={testMode}
                                 isReviewMode={true}
+                                showCompanionIcons={companionIcons}
                                 questionNumberLabel={`Question ${activeExamIndex + 1} of ${activeExamIds.length}`}
+                                peerAccuracyRate={questionCorrectnessRates[activeExamQuestion.id]}
+                                elapsedSeconds={questionElapsedMap[activeExamQuestion.id]}
                                 onOpenNoteModal={() => openQuestion(activeExamQuestion, 'Notes')}
                                 onToggleFlag={handleToggleFlag}
                               />
@@ -4204,7 +4605,7 @@ function App() {
                                   disabled={activeExamIndex === 0}
                                   onClick={() => setActiveExamIndex(Math.max(0, activeExamIndex - 1))}
                                 >
-                                  ← Previous Question
+                                  ← Previous <kbd className="kbdHint">←</kbd>
                                 </button>
                                 <span>
                                   Reviewing Question <strong>{activeExamIndex + 1}</strong> of{' '}
@@ -4219,10 +4620,10 @@ function App() {
                                     setActiveExamIndex(Math.min(activeExamIds.length - 1, activeExamIndex + 1))
                                   }
                                 >
-                                  Next Question →
+                                  Next Question <kbd className="kbdHint">→</kbd>
                                 </button>
                               </div>
-                            </>
+                            </div>
                           )}
                         </div>
                       )
@@ -4473,90 +4874,99 @@ function App() {
                 </section>
               </>
             ) : (
-              /* Dedicated Sub-Topic & Trial Breakdown View for IgA Nephropathy, Lupus Nephritis, Membranous, MCD, or IRGN */
+              /* Dedicated ANCA-Associated Vasculitis Sub-Domain Breakdown View (KDIGO 2024, Induction Trials, or Maintenance Trials) */
               <section className="dashboardCard" style={{ marginBottom: 24 }} aria-label={`${activeGlomerularModule.id} Curriculum Breakdown`}>
                 <div className="cardHeaderRow">
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <h2 className="cardTitle">{activeGlomerularModule.id} · Topic &amp; Guideline Structure</h2>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                      <h2 className="cardTitle">{activeGlomerularModule.id} · Domain Breakdown</h2>
                       <span
                         style={{
                           fontSize: 11.5,
                           fontWeight: 700,
                           padding: '3px 10px',
                           borderRadius: 999,
-                          background: '#f0ebff',
-                          color: '#5b32d6',
+                          background: 'var(--emerald-soft)',
+                          color: '#0e6f40',
                         }}
                       >
-                        Curriculum Scaffold Ready for Question Authoring
+                        {rows.filter((r) => activeGlomerularModule.plannedSources.includes(r.source)).length} Active ANCA Questions
                       </span>
                     </div>
-                    <p style={{ margin: '6px 0 0', fontSize: 13.5, color: '#5a625d' }}>
-                      {activeGlomerularModule.description}. Questions added to this module will automatically populate its
-                      decision targets and guideline/trial cards below.
+                    <p style={{ margin: '6px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
+                      {activeGlomerularModule.description}. Click any decision target or trial below to practice immediately.
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    className="createExamBtn"
-                    onClick={() => createNewQuestionRecord(activeGlomerularModule.id)}
-                  >
-                    + Author Question for {activeGlomerularModule.shortName}
-                  </button>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      className="createExamBtn"
+                      onClick={() =>
+                        openCreateTestConfigurator({
+                          sources: activeGlomerularModule.plannedSources,
+                          targets: [],
+                          initialStep: 4,
+                        })
+                      }
+                    >
+                      Practice {activeGlomerularModule.shortName} →
+                    </button>
+                  </div>
                 </div>
 
                 <div className="subAccordionGrid" style={{ marginTop: 16 }}>
                   <div className="packageCard">
-                    <div style={{ fontWeight: 700, fontSize: 16, color: '#141816' }}>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>
                       {activeGlomerularModule.shortName} · Decision Targets
                     </div>
                     <div style={{ display: 'grid', gap: 8, width: '100%' }}>
-                      {activeGlomerularModule.plannedTargets.map((pt) => (
-                        <div
-                          key={pt}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '9px 12px',
-                            borderRadius: 11,
-                            background: '#f7faf7',
-                            border: '1px solid #e4ece4',
-                            fontSize: 13,
-                          }}
-                        >
-                          <span style={{ fontWeight: 600, color: '#141816' }}>{pt}</span>
-                          <span style={{ fontSize: 11.5, color: '#7c857f' }}>Target Folder Ready</span>
-                        </div>
-                      ))}
+                      {activeGlomerularModule.plannedTargets.map((pt) => {
+                        const count = rows.filter(
+                          (q) =>
+                            activeGlomerularModule.plannedSources.includes(q.source) &&
+                            (q.target || 'Unclassified') === pt
+                        ).length
+                        return (
+                          <button
+                            key={pt}
+                            type="button"
+                            className="checkboxOptionRow"
+                            onClick={() =>
+                              openCreateTestConfigurator({
+                                sources: activeGlomerularModule.plannedSources,
+                                targets: [pt],
+                                initialStep: 4,
+                              })
+                            }
+                          >
+                            <span style={{ fontWeight: 600 }}>{pt}</span>
+                            <span className="builderCountTag">{count} QS →</span>
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
 
                   <div className="packageCard">
-                    <div style={{ fontWeight: 700, fontSize: 16, color: '#141816' }}>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>
                       {activeGlomerularModule.shortName} · Guidelines &amp; Landmark Trials
                     </div>
                     <div style={{ display: 'grid', gap: 8, width: '100%' }}>
-                      {activeGlomerularModule.plannedSources.map((ps) => (
-                        <div
-                          key={ps}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '9px 12px',
-                            borderRadius: 11,
-                            background: '#f7faf7',
-                            border: '1px solid #e4ece4',
-                            fontSize: 13,
-                          }}
-                        >
-                          <span style={{ fontWeight: 600, color: '#141816' }}>{ps}</span>
-                          <span style={{ fontSize: 11.5, color: '#2e7cf6', fontWeight: 600 }}>Evidence Source Slot</span>
-                        </div>
-                      ))}
+                      {activeGlomerularModule.plannedSources.map((ps) => {
+                        const count = sourceCounts[ps] || 0
+                        return (
+                          <button
+                            key={ps}
+                            type="button"
+                            className="checkboxOptionRow"
+                            onClick={() => openFilteredQBank({ source: ps })}
+                          >
+                            <span style={{ fontWeight: 600 }}>{ps}</span>
+                            <span className="builderCountTag">{count} QS →</span>
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
                 </div>
@@ -4573,8 +4983,8 @@ function App() {
             <div className="cardHeaderRow">
               <div>
                 <h2 className="cardTitle">Author &amp; Editorial Studio</h2>
-                <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#5a625d' }}>
-                  Author new questions across glomerular disease modules, assign a decision target folder, add clinical
+                <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--text-secondary)' }}>
+                  Author new ANCA-associated vasculitis questions, assign a decision target folder, add clinical
                   tags, and keep the guideline or trial name in source.
                 </p>
               </div>
@@ -4618,7 +5028,7 @@ function App() {
                   <div className="metricValue">{rows.length}</div>
                   <div className="metricLabel">Total Active Questions</div>
                 </div>
-                <span style={{ fontSize: 12.5, color: '#5a625d' }}>
+                <span style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>
                   Split across {allTargets.length} target folders and {labels.length} trial/guideline sources
                 </span>
               </div>
@@ -4627,7 +5037,7 @@ function App() {
                   <div className="metricValue">{rows.filter((r) => r.status === 'In review').length}</div>
                   <div className="metricLabel">In Editorial Review</div>
                 </div>
-                <span style={{ fontSize: 12.5, color: '#5a625d' }}>
+                <span style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>
                   Click any question below to edit stem, options A–E, notes, or rationale
                 </span>
               </div>
@@ -4636,7 +5046,7 @@ function App() {
                   <div className="metricValue">{allTags.length}</div>
                   <div className="metricLabel">Clinical Tags Indexed</div>
                 </div>
-                <span style={{ fontSize: 12.5, color: '#5a625d' }}>
+                <span style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>
                   Includes Kidney biopsy, ANCA testing, Rituximab, Avacopan, Plasma exchange
                 </span>
               </div>
@@ -4646,12 +5056,12 @@ function App() {
 
         {/* ====================================================================
             5. QUESTION BANK EXPLORER (Shown ONLY on Question Bank & Author tabs)
-            Includes:
-            - Sorting dropdown by 'Correctness Rate' (Lowest to Highest / Highest to Lowest)
-            - Note Icon badge on every question card that has a saved personal note
+            - Single compact toolbar with Search + Dropdown Popovers (Topic, Status, Source, Difficulty/Accuracy)
+            - Collapsible Sidebar / Navigator toggled via `[` keyboard shortcut
+            - Clean, de-noised question row cards
            ==================================================================== */}
         {(navTab === 'Question Bank' || navTab === 'Author') && (
-          <section className="qbankSection" id="qbank-workspace" aria-label="Glomerular disease question bank">
+          <section className="qbankSection" id="qbank-workspace" aria-label="ANCA-associated vasculitis question bank">
             <div className="qbankTopBar">
               <div className="qbankHeadingGroup">
                 <h2>
@@ -4660,77 +5070,121 @@ function App() {
                     : 'ANCA-Associated Vasculitis Question Bank'}
                 </h2>
                 <p>
-                  Showing {visible.length} of {rows.length} questions
-                  {attemptFilter ? ` · Filter: ${attemptFilter.toUpperCase()}` : ''}
+                  Showing <strong>{visible.length}</strong> of <strong>{rows.length}</strong> questions
+                  {attemptFilter ? ` · Status: ${attemptFilter.toUpperCase()}` : ''}
                   {target ? ` · Target: ${target}` : ''}
                   {source ? ` · Source: ${source}` : ''}
                   {topic ? ` · Topic: ${topic}` : ''}
                   {tag ? ` · Tag: ${tag}` : ''}
                   {sortOrder !== 'default'
-                    ? ` · Ordered by Correctness Rate (${sortOrder === 'rate-asc' ? 'Lowest → Highest' : 'Highest → Lowest'})`
+                    ? ` · Accuracy: ${sortOrder === 'rate-asc' ? 'Challenging First (Low → High)' : 'Highest Accuracy First'}`
                     : ''}
                 </p>
               </div>
-
-              <div className="welcomeActions">
-                {/* Filter question list by All, Correct (85%), Wrong (10%), Flagged (5%), or With Notes */}
-                <div className="seg" style={{ marginBottom: 0 }}>
-                  {(
-                    [
-                      ['', `All (${rows.length})`],
-                      ['correct', `Correct (${correctCount})`],
-                      ['incorrect', `Wrong (${wrongCount})`],
-                      ['flagged', `★ Flagged (${flaggedCount})`],
-                      ['notes', `📝 Notes (${notesCount})`],
-                    ] as const
-                  ).map(([val, label]) => (
-                    <button
-                      key={val}
-                      type="button"
-                      aria-pressed={attemptFilter === val}
-                      onClick={() => setAttemptFilter(val)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Sorting Dropdown by Correctness Rate */}
-                <select
-                  className="sortSelectPill"
-                  aria-label="Sort questions by correctness rate"
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as 'default' | 'rate-asc' | 'rate-desc')}
-                >
-                  <option value="default">Sort: Default Order (Q001 → Q228)</option>
-                  <option value="rate-asc">Sort: Correctness Rate (Lowest → Highest)</option>
-                  <option value="rate-desc">Sort: Correctness Rate (Highest → Lowest)</option>
-                </select>
-
-                {(target || source || tag || status || search || recent || topic || attemptFilter || sortOrder !== 'default') && (
-                  <button
-                    type="button"
-                    className="secondaryPillBtn"
-                    onClick={() => {
-                      G('')
-                      S('')
-                      T('')
-                      H('')
-                      V('')
-                      F('')
-                      setAttemptFilter('')
-                      setSortOrder('default')
-                      R(false)
-                    }}
-                  >
-                    Clear Filters
-                  </button>
-                )}
-              </div>
             </div>
 
-            <div className="indexLayout" id="index">
-              <aside className="targetIndex" aria-label="Decision targets and trial sources">
+            {/* Single Compact Filter Toolbar Row */}
+            <SearchToolbar
+              search={search}
+              onSearch={F}
+              recent={recent}
+              onRecent={() => {
+                R(!recent)
+                if (!recent) {
+                  G('')
+                  H('')
+                  V('')
+                  S('')
+                  T('')
+                  F('')
+                }
+              }}
+              sidebarOpen={isSidebarOpen}
+              onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+              activeFilterCount={activeFilterCount}
+              onClearAll={() => {
+                G('')
+                S('')
+                T('')
+                H('')
+                V('')
+                F('')
+                setAttemptFilter('')
+                setSortOrder('default')
+                R(false)
+              }}
+              facets={[
+                { name: 'Topic', value: topic, options: topicList, change: T },
+                {
+                  name: 'Status',
+                  value:
+                    attemptFilter === 'unused'
+                      ? 'Unanswered'
+                      : attemptFilter === 'incorrect'
+                      ? 'Incorrect'
+                      : attemptFilter === 'correct'
+                      ? 'Correct'
+                      : attemptFilter === 'flagged'
+                      ? 'Flagged'
+                      : attemptFilter === 'notes'
+                      ? 'With Notes'
+                      : '',
+                  options: ['Unanswered', 'Incorrect', 'Correct', 'Flagged', 'With Notes'],
+                  change: (val: string) => {
+                    if (val === 'Unanswered') setAttemptFilter('unused')
+                    else if (val === 'Incorrect') setAttemptFilter('incorrect')
+                    else if (val === 'Correct') setAttemptFilter('correct')
+                    else if (val === 'Flagged') setAttemptFilter('flagged')
+                    else if (val === 'With Notes') setAttemptFilter('notes')
+                    else setAttemptFilter('')
+                  },
+                },
+                {
+                  name: 'Difficulty',
+                  value:
+                    sortOrder === 'rate-asc'
+                      ? 'Challenging First'
+                      : sortOrder === 'rate-desc'
+                      ? 'High Accuracy First'
+                      : '',
+                  options: ['Challenging First', 'High Accuracy First'],
+                  change: (val: string) => {
+                    if (val === 'Challenging First') setSortOrder('rate-asc')
+                    else if (val === 'High Accuracy First') setSortOrder('rate-desc')
+                    else setSortOrder('default')
+                  },
+                },
+                { name: 'Source', value: source, options: labels, change: S },
+                { name: 'Tag', value: tag, options: allTags, change: H },
+              ]}
+            />
+
+            <div className="indexLayout" id="index" data-sidebar-open={isSidebarOpen}>
+              {/* Mobile/Tablet Backdrop when Slide-Over Drawer is open */}
+              {isSidebarOpen && (
+                <div
+                  className="sidebarDrawerBackdrop"
+                  aria-hidden="true"
+                  onClick={() => setIsSidebarOpen(false)}
+                />
+              )}
+
+              <aside
+                className="targetIndex"
+                data-open={isSidebarOpen}
+                aria-label="Decision targets and trial sources"
+              >
+                <div className="sidebarDrawerMobileHeader">
+                  <strong>Question Navigator</strong>
+                  <button
+                    type="button"
+                    className="structuredLabToggleBtn"
+                    onClick={() => setIsSidebarOpen(false)}
+                  >
+                    Close ✕
+                  </button>
+                </div>
+
                 <h3>Decision Targets</h3>
                 <div className="targetLinks" style={{ marginBottom: 18 }}>
                   {['', ...allTargets].map((t) => {
@@ -4756,45 +5210,9 @@ function App() {
                     )
                   })}
                 </div>
-
-                <select
-                  className="mobileTarget"
-                  aria-label="Question target"
-                  value={target}
-                  onChange={(e) => G(e.target.value)}
-                >
-                  {['', ...allTargets].map((t) => (
-                    <option key={t} value={t}>
-                      {t || 'All targets'} ({t ? targetCounts[t] || 0 : rows.length})
-                    </option>
-                  ))}
-                </select>
               </aside>
 
               <div className="indexResults">
-                <SearchToolbar
-                  search={search}
-                  onSearch={F}
-                  recent={recent}
-                  onRecent={() => {
-                    R(!recent)
-                    if (!recent) {
-                      G('')
-                      H('')
-                      V('')
-                      S('')
-                      T('')
-                      F('')
-                    }
-                  }}
-                  facets={[
-                    { name: 'Source', value: source, options: labels, change: S },
-                    { name: 'Clinical topic', value: topic, options: topicList, change: T },
-                    { name: 'Clinical tag', value: tag, options: allTags, change: H },
-                    { name: 'Review status', value: status, options: statuses, change: V },
-                  ]}
-                />
-
                 <div className="questionCards">
                   {visible.slice(currentPage * 10, currentPage * 10 + 10).map((q) => {
                     const codePart = q.title.split(' · ')[0]
@@ -4802,8 +5220,6 @@ function App() {
                     const attempt = attempts[q.id]
                     const isFlagged = flaggedIds.includes(q.id)
                     const hasNote = Boolean(notes[q.id]?.trim())
-                    const qRate = questionCorrectnessRates[q.id] ?? 75
-                    const rateTier = qRate >= 75 ? 'high' : qRate >= 55 ? 'mid' : 'low'
                     const statusKey = attempt
                       ? attempt.correct
                         ? 'correct'
@@ -4833,13 +5249,7 @@ function App() {
                                 onClick={() => openQuestion(q, 'Notes')}
                                 title={`Saved Study Note: ${notes[q.id]}`}
                               >
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                  <polyline points="14 2 14 8 20 8" />
-                                  <line x1="16" y1="13" x2="8" y2="13" />
-                                  <line x1="16" y1="17" x2="8" y2="17" />
-                                </svg>
-                                <span>Note</span>
+                                <span>📝 Note</span>
                               </button>
                             )}
                           </div>
@@ -4848,7 +5258,7 @@ function App() {
                             <button
                               type="button"
                               className="metaLinkBtn"
-                              style={{ color: '#19b368' }}
+                              style={{ color: 'var(--emerald)' }}
                               onClick={() => G(q.target || 'Unclassified')}
                             >
                               {q.target || 'Unclassified'}
@@ -4861,61 +5271,38 @@ function App() {
                             <button type="button" className="metaTagBtn" onClick={() => T(q.topic)}>
                               {q.topic}
                             </button>
-                            {q.tags?.map((t) => (
-                              <React.Fragment key={t}>
-                                <span aria-hidden="true">·</span>
-                                <button type="button" className="metaTagBtn" onClick={() => H(t)}>
-                                  {t}
-                                </button>
-                              </React.Fragment>
-                            ))}
                           </div>
                         </div>
 
                         <div className="qcardRight">
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                            <span className="correctnessRatePill" data-tier={rateTier} title="Question correctness rate">
-                              {qRate}% Correctness
-                            </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
                             <span className="qcardStatusText" data-status={statusKey}>
                               {attempt
                                 ? attempt.correct
                                   ? '✓ Correct'
-                                  : '✕ Wrong'
+                                  : '✕ Incorrect'
                                 : isFlagged
                                 ? '★ Flagged'
-                                : 'Unused'}
+                                : 'Unanswered'}
                             </span>
-                          </div>
-                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+
                             <button
                               type="button"
                               className="flagToggleBtn"
                               aria-pressed={isFlagged}
                               aria-label={isFlagged ? `Unflag ${codePart}` : `Flag ${codePart} for review`}
                               onClick={() => handleToggleFlag(q.id)}
+                              title={isFlagged ? 'Unflag question' : 'Flag for review'}
                             >
                               <span>{isFlagged ? '★' : '☆'}</span>
-                              <span>{isFlagged ? 'Flagged' : 'Flag'}</span>
                             </button>
+
                             <button
                               type="button"
                               className="qcardSolveBtn"
-                              onClick={() => openQuestion(q, 'Notes')}
-                              title={hasNote ? 'View or edit your study note' : 'Add a personal study note'}
+                              onClick={() => openQuestion(q, navTab === 'Author' ? 'Edit record' : 'Read')}
                             >
-                              {hasNote ? '📝 Note' : '+ Note'}
-                            </button>
-                            <button type="button" className="qcardSolveBtn" onClick={() => openQuestion(q, 'Read')}>
-                              Practice
-                            </button>
-                            <button
-                              type="button"
-                              className="qcardSolveBtn"
-                              onClick={() => openQuestion(q, 'Edit record')}
-                              aria-label={`Edit ${codePart}`}
-                            >
-                              Author
+                              {navTab === 'Author' ? 'Edit' : 'Practice →'}
                             </button>
                           </div>
                         </div>
@@ -4924,13 +5311,18 @@ function App() {
                   })}
 
                   {!visible.length && (
-                    <div style={{ textAlign: 'center', padding: '36px 20px', color: '#5a625d' }}>
+                    <div className="emptyFilterStateBox">
+                      {companionIcons && (
+                        <div className="emptyFilterSlideWrap">
+                          <PixelBiopsySlide size={40} />
+                        </div>
+                      )}
                       <p style={{ marginBottom: 12 }}>
                         {attemptFilter === 'flagged'
-                          ? 'No questions are currently flagged for review. Click "☆ Flag" on any question card to mark it.'
+                          ? 'No questions match your filters (no questions are currently flagged for review).'
                           : attemptFilter === 'notes'
-                          ? 'No questions have saved study notes yet. Click "+ Note" on any question card to write a study note.'
-                          : 'No questions match these filters.'}
+                          ? 'No questions match your filters (no saved study notes yet).'
+                          : 'No questions match your filters.'}
                       </p>
                       <button
                         type="button"
@@ -4989,7 +5381,7 @@ function App() {
 
         {!isInsideExamBlock && (
           <footer>
-            Nephro Question Bank · {totalAvailable} Questions · {correctPct}% Correct ({correctCount}) · {wrongPct}% Wrong ({wrongCount}) · {flaggedPct}% Flagged ({flaggedCount}) · {notesCount} Saved Study Notes
+            Question Atlas · ANCA-Associated Vasculitis Library · {totalAvailable} Questions · {correctPct}% Correct ({correctCount}) · {wrongPct}% Wrong ({wrongCount}) · {flaggedPct}% Flagged ({flaggedCount}) · {notesCount} Saved Study Notes
           </footer>
         )}
       </main>
@@ -5011,12 +5403,6 @@ function App() {
             <div className="dialogHeader">
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <h2>{edit.title.split(' · ')[0]}</h2>
-                <span
-                  className="correctnessRatePill"
-                  data-tier={(questionCorrectnessRates[edit.id] ?? 75) >= 75 ? 'high' : (questionCorrectnessRates[edit.id] ?? 75) >= 55 ? 'mid' : 'low'}
-                >
-                  {questionCorrectnessRates[edit.id] ?? 75}% Correctness Rate
-                </span>
                 {Boolean(notes[edit.id]?.trim()) && (
                   <span className="noteBadgeBtn" style={{ pointerEvents: 'none' }}>
                     📝 Has Saved Note
@@ -5054,6 +5440,8 @@ function App() {
                 savedChoice={modalSessionAnswers[edit.id]?.choice}
                 isFlagged={flaggedIds.includes(edit.id)}
                 hasNote={Boolean(notes[edit.id]?.trim())}
+                showCompanionIcons={companionIcons}
+                peerAccuracyRate={questionCorrectnessRates[edit.id]}
                 onOpenNoteModal={() => M('Notes')}
                 onToggleFlag={handleToggleFlag}
                 onPickChoice={handleRecordModalAttempt}
